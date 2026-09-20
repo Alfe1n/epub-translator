@@ -225,9 +225,12 @@
             bind:value={customModel}
             class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           >
-            <optgroup label="🌟 Super Kuota (500 Request/Hari - Sangat Direkomendasikan)">
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (🥇 Kuota 500 RPD, 15 RPM - Paling Cepat & Bebas Limit)</option>
-              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (🥈 Kuota 500 RPD, 15 RPM - Sangat Stabil)</option>
+            <optgroup label="🚀 Dual-Engine Anti Limit (1.000 Request/Hari - Rekomendasi #1)">
+              <option value="dual-flash-lite">dual-flash-lite (👑 Rotasi Otomatis 3.5 + 3.1 Lite - Kuota 1.000 RPD, Bebas 15 RPM)</option>
+            </optgroup>
+            <optgroup label="🌟 Super Kuota (500 Request/Hari)">
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (🥇 Kuota 500 RPD, 15 RPM - 392 Sisa)</option>
+              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (🥈 Kuota 500 RPD, 15 RPM - 499 Sisa Segar)</option>
             </optgroup>
             <optgroup label="⚡ Frontier Flash (Batas 20 Request/Hari)">
               <option value="gemini-3.5-flash">gemini-3.5-flash (Cepat & Stabil - 20 RPD)</option>

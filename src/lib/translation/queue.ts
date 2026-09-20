@@ -243,8 +243,8 @@ export async function startTranslationSession(
     } finally {
       runningCount--;
       if (!signal.aborted && !circuitBroken && nextBatchIdx < pendingBatches.length) {
-        // Small pacing delay to prevent hitting Google AI Studio RPM bursts
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        // Smooth pacing delay to prevent hitting Google AI Studio RPM bursts (keeps RPM under 8)
+        await new Promise((resolve) => setTimeout(resolve, 1800));
         await processNext();
       }
     }

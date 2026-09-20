@@ -12,19 +12,27 @@ interface GeminiModelInfo {
 
 const CURATED_MODELS: GeminiModelInfo[] = [
   {
+    id: 'dual-flash-lite',
+    name: 'Dual-Engine Lite (3.5 + 3.1)',
+    tag: '🚀 Kuota 1.000 RPD (Paling Direkomendasikan)',
+    badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
+    description: 'Rotasi otomatis antara Gemini 3.5 & 3.1 Flash-Lite. Membagi beban RPM agar tidak kuning/macet, total kuota gabungan 1.000 request/hari!',
+    category: 'efficiency'
+  },
+  {
     id: 'gemini-3.5-flash-lite',
     name: 'Gemini 3.5 Flash-Lite',
-    tag: '🌟 Kuota 500 RPD (Rekomendasi Utama)',
-    badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
-    description: 'Model resmi Google dengan kuota harian TERBESAR (500 request/hari, 15 RPM). Tercepat, tanpa limit 20 RPD & bebas 503.',
+    tag: '🌟 Kuota 500 RPD',
+    badgeClass: 'bg-teal-100 text-teal-700 dark:bg-teal-950/80 dark:text-teal-300 border-teal-300 dark:border-teal-800',
+    description: 'Model resmi Google dengan kuota 500 request/hari, 15 RPM. Sangat cepat, stabil dan bebas 503.',
     category: 'efficiency'
   },
   {
     id: 'gemini-3.1-flash-lite',
     name: 'Gemini 3.1 Flash-Lite',
-    tag: '⚡ Kuota 500 RPD',
-    badgeClass: 'bg-teal-100 text-teal-700 dark:bg-teal-950/80 dark:text-teal-300 border-teal-300 dark:border-teal-800',
-    description: 'Model generasi 3.1 dengan kuota harian besar (500 request/hari, 15 RPM). Sangat stabil.',
+    tag: '⚡ Kuota 500 RPD (Segar)',
+    badgeClass: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/80 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
+    description: 'Model generasi 3.1 dengan kuota 500 request/hari, 15 RPM. Cadangan berkuota besar yang masih segar (499 sisa).',
     category: 'efficiency'
   },
   {

@@ -50,7 +50,7 @@
 
   // Translation Configuration
   let selectedStyle = $state<TranslationStyle>('literary');
-  let selectedModel = $state('gemini-3.5-flash-lite');
+  let selectedModel = $state('dual-flash-lite');
   let modelCategoryFilter = $state<'all' | 'efficiency' | 'frontier'>('all');
 
   interface ModelOption {
@@ -67,26 +67,37 @@
 
   const availableModelOptions: ModelOption[] = [
     {
-      id: 'gemini-3.5-flash-lite',
-      name: 'Gemini 3.5 Flash-Lite',
+      id: 'dual-flash-lite',
+      name: 'Dual-Engine Lite (3.5 + 3.1)',
       category: 'efficiency',
-      badge: '🥇 Kuota 500 RPD (Paling Rekomended)',
+      badge: '👑 Kuota 1.000 RPD (Paling Direkomendasikan)',
       badgeStyle: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
       borderActive: 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40',
       ringActive: 'ring-emerald-500/50 text-emerald-600',
+      description: 'Otomatis bergantian antara Gemini 3.5 & 3.1 Flash-Lite per bab. Membagi beban RPM agar tidak kuning/macet, total kuota gabungan 1.000 request/hari!',
+      usageNote: '🚀 Kuota 1.000 Request/Hari (Bisa 70-100 Novel Utuh/Hari)'
+    },
+    {
+      id: 'gemini-3.5-flash-lite',
+      name: 'Gemini 3.5 Flash-Lite',
+      category: 'efficiency',
+      badge: '🥇 Kuota 500 RPD',
+      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
+      borderActive: 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/40',
+      ringActive: 'ring-teal-500/50 text-teal-600',
       description: 'Model resmi terbaru Google dengan kuota TERBESAR (500 request/hari, 15 RPM). Paling cepat, tidak kena limit 20 RPD & bebas macet.',
-      usageNote: '🌟 Kuota 500 Request/Hari (Bisa 30-50 Novel Utuh/Hari)'
+      usageNote: '🌟 Kuota 500 Request/Hari (Tersisa 392 Request Hari Ini)'
     },
     {
       id: 'gemini-3.1-flash-lite',
       name: 'Gemini 3.1 Flash-Lite',
       category: 'efficiency',
-      badge: '🥈 Kuota 500 RPD',
-      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
-      borderActive: 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/40',
-      ringActive: 'ring-teal-500/50 text-teal-600',
+      badge: '🥈 Kuota 500 RPD (Segar)',
+      badgeStyle: 'bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
+      borderActive: 'border-cyan-500 bg-cyan-50/60 dark:bg-cyan-950/40',
+      ringActive: 'ring-cyan-500/50 text-cyan-600',
       description: 'Model generasi 3.1 dengan kuota harian besar (500 request/hari, 15 RPM). Cadangan terbaik jika 3.5 sibuk.',
-      usageNote: '⚡ Kuota 500 Request/Hari (Cadangan Kuota Besar)'
+      usageNote: '⚡ Kuota 500 Request/Hari (Masih 499 Request Tersisa!)'
     },
     {
       id: 'gemini-3.5-flash',
@@ -136,13 +147,13 @@
 
   onMount(() => {
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    // Auto-migrate any deprecated/exhausted models (1.5, 2.0, 2.5, 3.8) to the active 500 RPD gemini-3.5-flash-lite
+    // Auto-migrate any deprecated/exhausted models (1.5, 2.0, 2.5, 3.8) to dual-flash-lite
     const isObsolete = !savedModel || savedModel.includes('1.5') || savedModel.includes('2.0') || savedModel.includes('2.5') || savedModel.includes('3.8');
     if (savedModel && !isObsolete) {
       selectedModel = savedModel;
     } else {
-      selectedModel = 'gemini-3.5-flash-lite';
-      localStorage.setItem('linguabook_custom_model', 'gemini-3.5-flash-lite');
+      selectedModel = 'dual-flash-lite';
+      localStorage.setItem('linguabook_custom_model', 'dual-flash-lite');
     }
   });
 

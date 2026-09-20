@@ -129,7 +129,15 @@ export async function translateBatchWithGemini(
     );
   }
 
-  let model = config.model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  let model = config.model || process.env.GEMINI_MODEL || 'dual-flash-lite';
+
+  // Support Dual-Engine auto load-balancing / rotation (1,000 RPD combined)
+  if (model === 'dual-flash-lite' || model === 'auto-lite') {
+    model = (batch.batchIndex + (batch.chapterIndex % 2)) % 2 === 0
+      ? 'gemini-3.5-flash-lite'
+      : 'gemini-3.1-flash-lite';
+  }
+
   // Map retired or 404 models directly to active 500 RPD gemini-3.5-flash-lite
   if (
     model === 'gemini-2.5-flash-lite' ||
