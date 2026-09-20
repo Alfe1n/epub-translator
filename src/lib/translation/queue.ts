@@ -184,7 +184,7 @@ export async function startTranslationSession(
   let nextBatchIdx = 0;
   let hasErrors = false;
   let consecutiveErrors = 0;
-  const MAX_CONSECUTIVE_ERRORS = 3;
+  const MAX_CONSECUTIVE_ERRORS = 5;
   let circuitBroken = false;
 
   async function processNext(): Promise<void> {
@@ -231,7 +231,7 @@ export async function startTranslationSession(
         );
         broadcastProgress(
           session!,
-          '🛑 Rem Pengaman Kuota Aktif: Sistem otomatis menjeda antrean untuk melindungi kuota Gemini Anda. Silakan periksa koneksi atau klik Retry.'
+          '🛑 Antrean Dijeda: Terjadi kendala koneksi berturut-turut pada Gemini. Silakan periksa koneksi lalu klik "Lanjutkan Terjemahan" atau "Retry Semua".'
         );
         return;
       }

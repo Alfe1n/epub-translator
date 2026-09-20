@@ -8,6 +8,111 @@ export interface GeminiConfig {
 }
 
 /**
+ * Fault-tolerant JSON parser & repair engine for LLM outputs.
+ * Handles markdown fences, raw unescaped newlines/tabs inside strings,
+ * invalid escape sequences (e.g. \&, \', \ ), trailing commas,
+ * text before/after JSON arrays, and regex extraction fallback.
+ */
+function repairAndParseJson(raw: string): any {
+  if (!raw || typeof raw !== 'string') return null;
+
+  // 1. Strip markdown code fences if present
+  let text = raw.trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+
+  // Fast path: direct JSON.parse
+  try {
+    return JSON.parse(text);
+  } catch {}
+
+  // 2. Extract JSON slice between first [ or { and last ] or }
+  const firstArr = text.indexOf('[');
+  const lastArr = text.lastIndexOf(']');
+  const firstObj = text.indexOf('{');
+  const lastObj = text.lastIndexOf('}');
+
+  let candidate = text;
+  if (firstArr !== -1 && lastArr !== -1 && (firstObj === -1 || firstArr < firstObj)) {
+    candidate = text.slice(firstArr, lastArr + 1);
+  } else if (firstObj !== -1 && lastObj !== -1) {
+    candidate = text.slice(firstObj, lastObj + 1);
+  }
+
+  try {
+    return JSON.parse(candidate);
+  } catch {}
+
+  // 3. Fix unescaped control characters and invalid backslashes inside string literals
+  let insideString = false;
+  let escaped = false;
+  let repaired = '';
+
+  for (let i = 0; i < candidate.length; i++) {
+    const char = candidate[i];
+    const code = candidate.charCodeAt(i);
+
+    if (insideString) {
+      if (escaped) {
+        escaped = false;
+        if (/["\\\/bfnrtu]/.test(char)) {
+          repaired += char;
+        } else {
+          // Escape invalid backslash: e.g. \& -> \\&
+          repaired = repaired.slice(0, -1) + '\\\\' + char;
+        }
+      } else if (char === '\\') {
+        escaped = true;
+        repaired += char;
+      } else if (char === '"') {
+        insideString = false;
+        repaired += char;
+      } else if (code < 0x20) {
+        // Control char inside string literal: escape it!
+        if (char === '\n') repaired += '\\n';
+        else if (char === '\r') repaired += '\\r';
+        else if (char === '\t') repaired += '\\t';
+      } else {
+        repaired += char;
+      }
+    } else {
+      if (char === '"') {
+        insideString = true;
+      }
+      repaired += char;
+    }
+  }
+
+  // Remove trailing commas before ] or }
+  repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+
+  try {
+    return JSON.parse(repaired);
+  } catch {}
+
+  // 4. Regex fallback: Extract any { id: ..., html: ... } pairs even from corrupted JSON
+  const extractedItems: Array<{ id: string; translatedHtml: string }> = [];
+  const itemRegex = /"id"\s*:\s*"([^"]+)"[\s\S]*?"(?:translatedHtml|html|translation|text|content)"\s*:\s*"((?:[^"\\]|\\.)*)"/gi;
+  let match;
+  while ((match = itemRegex.exec(candidate)) !== null) {
+    try {
+      const id = match[1];
+      const val = JSON.parse(`"${match[2]}"`);
+      extractedItems.push({ id, translatedHtml: val });
+    } catch {
+      extractedItems.push({ id: match[1], translatedHtml: match[2] });
+    }
+  }
+
+  if (extractedItems.length > 0) {
+    return extractedItems;
+  }
+
+  return null;
+}
+
+/**
  * Translates a single batch of items using Google Gemini API with retry and exponential backoff.
  */
 export async function translateBatchWithGemini(
@@ -66,7 +171,18 @@ export async function translateBatchWithGemini(
   const requestConfig: any = {
     systemInstruction,
     temperature: 0.3,
-    responseMimeType: 'application/json'
+    responseMimeType: 'application/json',
+    responseSchema: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          id: { type: 'STRING' },
+          translatedHtml: { type: 'STRING' }
+        },
+        required: ['id', 'translatedHtml']
+      }
+    }
   };
 
   const maxRetries = 4;
@@ -92,45 +208,67 @@ export async function translateBatchWithGemini(
         throw new Error('Received empty response from Gemini API');
       }
 
-      // Parse JSON response
-      let parsed: any;
-      try {
-        parsed = JSON.parse(responseText);
-      } catch {
-        // Strip markdown backticks if returned despite json mimeType
-        const cleaned = responseText
-          .replace(/```(?:json)?\s*/gi, '')
-          .replace(/```\s*$/gi, '')
-          .trim();
-        parsed = JSON.parse(cleaned);
-      }
-
-      const resultsArray: Array<{ id: string; translatedHtml: string }> = Array.isArray(parsed)
-        ? parsed
-        : Array.isArray(parsed?.items)
-          ? parsed.items
-          : Array.isArray(parsed?.translations)
-            ? parsed.translations
-            : [];
-
-      if (resultsArray.length === 0 && batch.items.length > 0) {
-        throw new Error('Invalid translation response format from Gemini');
-      }
-
-      // Map back to batch items
+      // Parse and repair JSON response
+      const parsed = repairAndParseJson(responseText);
       const resultMap = new Map<string, string>();
-      for (const res of resultsArray) {
-        if (res && res.id && typeof res.translatedHtml === 'string') {
-          resultMap.set(res.id, res.translatedHtml);
+
+      if (Array.isArray(parsed)) {
+        for (const res of parsed) {
+          if (res && typeof res === 'object') {
+            const id = res.id || res.key || res.item_id;
+            const html = res.translatedHtml ?? res.html ?? res.translation ?? res.translated_text ?? res.text ?? res.content;
+            if (id && typeof html === 'string') {
+              resultMap.set(String(id), html);
+            }
+          }
+        }
+      } else if (parsed && typeof parsed === 'object') {
+        const list = Array.isArray(parsed.items)
+          ? parsed.items
+          : Array.isArray(parsed.translations)
+            ? parsed.translations
+            : Array.isArray(parsed.results)
+              ? parsed.results
+              : null;
+
+        if (list) {
+          for (const res of list) {
+            if (res && typeof res === 'object') {
+              const id = res.id || res.key || res.item_id;
+              const html = res.translatedHtml ?? res.html ?? res.translation ?? res.translated_text ?? res.text ?? res.content;
+              if (id && typeof html === 'string') {
+                resultMap.set(String(id), html);
+              }
+            }
+          }
+        } else {
+          // Direct key-value map: { "item_1": "<p>Halo</p>" }
+          for (const [key, val] of Object.entries(parsed)) {
+            if (typeof val === 'string') {
+              resultMap.set(key, val);
+            } else if (val && typeof val === 'object' && typeof (val as any).translatedHtml === 'string') {
+              resultMap.set(key, (val as any).translatedHtml);
+            }
+          }
         }
       }
 
+      if (resultMap.size === 0 && batch.items.length > 0) {
+        throw new Error('Invalid translation response format from Gemini');
+      }
+
+      // Map back to batch items with fuzzy match and safe fallback
       for (const item of batch.items) {
         if (resultMap.has(item.id)) {
           item.translatedHtml = resultMap.get(item.id);
         } else {
-          // If a particular item was omitted, fallback to original to avoid losing content
-          item.translatedHtml = item.originalHtml;
+          const fuzzyKey = Array.from(resultMap.keys()).find(k => k.includes(item.id) || item.id.includes(k));
+          if (fuzzyKey) {
+            item.translatedHtml = resultMap.get(fuzzyKey);
+          } else {
+            // Fallback to original to avoid losing content
+            item.translatedHtml = item.originalHtml;
+          }
         }
       }
 
@@ -162,6 +300,12 @@ export async function translateBatchWithGemini(
       if (requestConfig.thinkingConfig && err.message?.toLowerCase().includes('thinking')) {
         console.warn(`[Batch ${batch.id}] thinkingConfig not supported for ${model}, disabling thinkingConfig...`);
         delete requestConfig.thinkingConfig;
+      }
+
+      // If responseSchema is rejected by model, remove it and retry
+      if (requestConfig.responseSchema && err.message?.toLowerCase().includes('schema')) {
+        console.warn(`[Batch ${batch.id}] responseSchema not supported for ${model}, disabling responseSchema...`);
+        delete requestConfig.responseSchema;
       }
 
       // If 503 (high demand) or 429 (rate limit exhausted) or 404 (not found), failover to high-capacity model

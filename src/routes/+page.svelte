@@ -163,6 +163,7 @@
   let failedBatches = $state<Array<{ chapterIndex: number; batchIndex: number; error: string }>>([]);
   let isRetryingBatch = $state(false);
   let isCancelling = $state(false);
+  let translationQueueStatus = $state<string>('idle');
 
   // SSE EventSource & Polling
   let eventSource: EventSource | null = null;
@@ -343,6 +344,7 @@
     completedChaptersCount = progress.completedChapters;
     progressMessage = progress.message;
     failedBatches = progress.failedBatches || [];
+    translationQueueStatus = progress.status || 'translating';
 
     if (progress.status === 'completed') {
       appState = 'completed';
@@ -435,12 +437,41 @@
     }
   }
 
+  async function resumeTranslation() {
+    if (!sessionId) return;
+    try {
+      const customKey = localStorage.getItem('linguabook_custom_api_key') || undefined;
+      const customModel = localStorage.getItem('linguabook_custom_model') || selectedModel;
+
+      progressMessage = 'Melanjutkan antrean terjemahan...';
+      translationQueueStatus = 'translating';
+
+      await fetch('/api/translate/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          style: selectedStyle,
+          apiKey: customKey,
+          model: customModel
+        })
+      });
+
+      listenToProgress();
+    } catch (err: any) {
+      console.error('Error resuming translation:', err);
+      alert(`Gagal melanjutkan antrean: ${err.message}`);
+    }
+  }
+
   async function retryAllFailedBatches() {
     if (!sessionId || isRetryingBatch || failedBatches.length === 0) return;
     const toRetry = [...failedBatches];
     for (const fb of toRetry) {
       await handleRetryBatch(fb.chapterIndex, fb.batchIndex);
     }
+    // Automatically resume remaining pending chapters in the queue
+    await resumeTranslation();
   }
 
   // --- Reader Preview ---
@@ -841,15 +872,32 @@
       <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 mb-1">
-              <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-              Translating in progress
-            </span>
+            {#if translationQueueStatus === 'error'}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 mb-1">
+                <AlertCircle class="w-3.5 h-3.5" />
+                Antrean Dijeda
+              </span>
+            {:else}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 mb-1">
+                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                Translating in progress
+              </span>
+            {/if}
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Translating your book...</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400">{bookTitle} by {bookAuthor}</p>
           </div>
 
           <div class="flex items-center gap-2">
+            {#if translationQueueStatus === 'error'}
+              <button
+                onclick={resumeTranslation}
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-colors shadow-sm"
+              >
+                <Play class="w-4 h-4 fill-current" />
+                <span>Lanjutkan Antrean</span>
+              </button>
+            {/if}
+
             {#if completedChaptersCount > 0}
               <button
                 onclick={() => openReader(0)}

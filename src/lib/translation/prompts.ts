@@ -58,9 +58,13 @@ TECHNICAL STYLE GUIDELINES (PROGRAMMING, ENGINEERING, MANUALS):
 
 export function buildBatchPrompt(items: Array<{ id: string; html: string }>, style: TranslationStyle): string {
   return `Translate each of the following text blocks from English to Indonesian following the system instructions.
-Return the result strictly as a valid JSON array of objects with the keys "id" and "translatedHtml", matching each item's "id" exactly.
+You must return a valid JSON array of objects. Each object must have exactly two fields:
+- "id": the exact id of the item matching the input
+- "translatedHtml": the translated Indonesian HTML preserving all original HTML inline tags
+
+Do NOT include any markdown, explanation, or commentary. Output ONLY the raw JSON array.
 
 Input items to translate:
-${JSON.stringify(items, null, 2)}
+${JSON.stringify(items)}
 `;
 }
