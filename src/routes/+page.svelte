@@ -50,15 +50,119 @@
 
   // Translation Configuration
   let selectedStyle = $state<TranslationStyle>('literary');
-  let selectedModel = $state('gemini-1.5-pro');
+  let selectedModel = $state('gemini-3.8-flash');
+  let modelCategoryFilter = $state<'all' | 'frontier' | 'efficiency' | 'classic'>('all');
+
+  interface ModelOption {
+    id: string;
+    name: string;
+    category: 'frontier' | 'efficiency' | 'classic';
+    badge: string;
+    badgeStyle: string;
+    borderActive: string;
+    ringActive: string;
+    description: string;
+    usageNote: string;
+  }
+
+  const availableModelOptions: ModelOption[] = [
+    {
+      id: 'gemini-3.8-flash',
+      name: 'Gemini 3.8 Flash',
+      category: 'frontier',
+      badge: '👑 Tercerdas',
+      badgeStyle: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800',
+      borderActive: 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30',
+      ringActive: 'ring-purple-500/50 text-purple-600',
+      description: 'Model Flash tercerdas untuk alur kerja kompleks, rekayasa software & sastra tingkat tinggi.',
+      usageNote: '⚡ Usage sangat hemat (kelas Flash)'
+    },
+    {
+      id: 'gemini-3.7-flash',
+      name: 'Gemini 3.7 Flash',
+      category: 'frontier',
+      badge: '🎯 Andal & Presisi',
+      badgeStyle: 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800',
+      borderActive: 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30',
+      ringActive: 'ring-indigo-500/50 text-indigo-600',
+      description: 'Model generasi 3.7 untuk akurasi tinggi dan eksekusi multi-langkah yang konsisten.',
+      usageNote: '⚡ Hemat kuota token'
+    },
+    {
+      id: 'gemini-3.6-flash',
+      name: 'Gemini 3.6 Flash',
+      category: 'frontier',
+      badge: '⚖️ Seimbang',
+      badgeStyle: 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800',
+      borderActive: 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30',
+      ringActive: 'ring-blue-500/50 text-blue-600',
+      description: 'Menyeimbangkan kecepatan kilat dan kemampuan multimodal untuk tugas harian.',
+      usageNote: '⚡ Cepat & efisien'
+    },
+    {
+      id: 'gemini-3.5-flash',
+      name: 'Gemini 3.5 Flash',
+      category: 'frontier',
+      badge: '⚡ Cepat & Stabil',
+      badgeStyle: 'bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
+      borderActive: 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30',
+      ringActive: 'ring-cyan-500/50 text-cyan-600',
+      description: 'Memberikan kecepatan dasar dan performa untuk beban kerja rutin.',
+      usageNote: '⚡ Ringan & andal'
+    },
+    {
+      id: 'gemini-2.5-flash-lite',
+      name: 'Gemini 2.5 Flash-Lite',
+      category: 'efficiency',
+      badge: '🌿 Super Hemat Kuota',
+      badgeStyle: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
+      borderActive: 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30',
+      ringActive: 'ring-emerald-500/50 text-emerald-600',
+      description: 'Model multimodal paling hemat dan tercepat di kelasnya. Cocok untuk novel sangat tebal.',
+      usageNote: '🌿 Biaya token minimal (mendekati Rp 0)'
+    },
+    {
+      id: 'gemini-1.5-pro',
+      name: 'Gemini 1.5 Pro',
+      category: 'classic',
+      badge: '📖 Sastra Pro',
+      badgeStyle: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800',
+      borderActive: 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30',
+      ringActive: 'ring-amber-500/50 text-amber-600',
+      description: 'Model flagship klasik dengan kecerdasan sastra tinggi, pemahaman subteks dan dialog puitis.',
+      usageNote: '👑 Diksi novel sastra'
+    },
+    {
+      id: 'gemini-2.0-flash',
+      name: 'Gemini 2.0 Flash',
+      category: 'classic',
+      badge: '🚀 Kilat 2.0',
+      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
+      borderActive: 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/30',
+      ringActive: 'ring-teal-500/50 text-teal-600',
+      description: 'Model generasi 2.0 dengan latensi respons paling singkat.',
+      usageNote: '🚀 Latensi sangat cepat'
+    },
+    {
+      id: 'gemini-1.5-flash',
+      name: 'Gemini 1.5 Flash',
+      category: 'classic',
+      badge: '🛡️ Klasik Teruji',
+      badgeStyle: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
+      borderActive: 'border-slate-500 bg-slate-50/50 dark:bg-slate-900/30',
+      ringActive: 'ring-slate-500/50 text-slate-600',
+      description: 'Model paling stabil dan teruji untuk kuota terbatas.',
+      usageNote: '🛡️ Sangat stabil'
+    }
+  ];
 
   onMount(() => {
     const savedModel = localStorage.getItem('linguabook_custom_model');
     if (savedModel && savedModel !== 'gemini-2.5-pro') {
       selectedModel = savedModel;
     } else {
-      selectedModel = 'gemini-1.5-pro';
-      localStorage.setItem('linguabook_custom_model', 'gemini-1.5-pro');
+      selectedModel = 'gemini-3.8-flash';
+      localStorage.setItem('linguabook_custom_model', 'gemini-3.8-flash');
     }
   });
 
@@ -180,7 +284,7 @@
     if (!sessionId) return;
 
     const customKey = localStorage.getItem('linguabook_custom_api_key') || undefined;
-    const customModel = selectedModel || localStorage.getItem('linguabook_custom_model') || 'gemini-2.5-pro';
+    const customModel = selectedModel || localStorage.getItem('linguabook_custom_model') || 'gemini-3.8-flash';
 
     try {
       const res = await fetch('/api/translate/start', {
@@ -554,123 +658,82 @@
           </div>
 
           <!-- AI Model Selector (Pilih Kualitas Model) -->
-          <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <div class="flex items-center justify-between">
-              <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Model Gemini (Pilihan Kualitas)
-              </span>
-              <span class="text-[11px] font-semibold text-orange-600 dark:text-orange-400">
-                {selectedModel === 'gemini-1.5-pro'
-                  ? '👑 Flagship Sastra Tertinggi'
-                  : selectedModel === 'gemini-2.0-flash'
-                    ? '🚀 Mode Kilat Generasi 2.0'
-                    : '⚡ Stabil & Hemat Kuota'}
-              </span>
+          <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Model Gemini (Pilihan Kualitas & Kuota)
+                </span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400">
+                  Model terpilih: <strong class="text-orange-600 dark:text-orange-400">{selectedModel}</strong>
+                </span>
+              </div>
+
+              <!-- Category filter tabs -->
+              <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-[11px] font-semibold">
+                <button
+                  type="button"
+                  onclick={() => modelCategoryFilter = 'all'}
+                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'all' ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
+                >
+                  Semua (8)
+                </button>
+                <button
+                  type="button"
+                  onclick={() => modelCategoryFilter = 'frontier'}
+                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'frontier' ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
+                >
+                  👑 3.x Flash
+                </button>
+                <button
+                  type="button"
+                  onclick={() => modelCategoryFilter = 'efficiency'}
+                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'efficiency' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
+                >
+                  🌿 Super Hemat
+                </button>
+                <button
+                  type="button"
+                  onclick={() => modelCategoryFilter = 'classic'}
+                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'classic' ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
+                >
+                  🏛️ Klasik
+                </button>
+              </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <!-- Gemini 1.5 Pro -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-1.5-pro'
-                  ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30 ring-1 ring-amber-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-1.5-pro"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-1.5-pro')}
-                  class="mt-0.5 text-amber-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Crown class="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 1.5 Pro</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-800">Paling Bagus</span>
-                  </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model flagship resmi dengan kecerdasan sastra tertinggi. Diksi puitis, memahami subteks, dialog, dan gaya penulisan novel.
-                  </span>
-                </div>
-              </label>
 
-              <!-- Gemini 2.0 Flash -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-2.0-flash'
-                  ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/30 ring-1 ring-teal-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-2.0-flash"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-2.0-flash')}
-                  class="mt-0.5 text-teal-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Zap class="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.0 Flash</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 font-semibold border border-teal-300 dark:border-teal-800">Kilat & Modern</span>
+            <!-- Model Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+              {#each availableModelOptions.filter(m => modelCategoryFilter === 'all' || m.category === modelCategoryFilter) as opt}
+                <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
+                  selectedModel === opt.id
+                    ? opt.borderActive + ' ring-1 ' + opt.ringActive
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white/50 dark:bg-slate-800/40'
+                }">
+                  <input
+                    type="radio"
+                    name="model"
+                    value={opt.id}
+                    bind:group={selectedModel}
+                    onchange={() => setModel(opt.id)}
+                    class="mt-1"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">{opt.name}</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold border {opt.badgeStyle}">
+                        {opt.badge}
+                      </span>
+                    </div>
+                    <span class="text-[11px] text-slate-600 dark:text-slate-300 block mt-1 leading-snug">
+                      {opt.description}
+                    </span>
+                    <span class="inline-block mt-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                      {opt.usageNote}
+                    </span>
                   </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model generasi 2.0 dengan latensi respons paling singkat dan pemahaman teks yang tajam.
-                  </span>
-                </div>
-              </label>
-
-              <!-- Gemini 1.5 Flash -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-1.5-flash'
-                  ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-1 ring-emerald-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-1.5-flash"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-1.5-flash')}
-                  class="mt-0.5 text-emerald-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Zap class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 1.5 Flash</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-800">Sangat Stabil</span>
-                  </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model paling stabil, cepat, dan sangat hemat kuota token. Cocok untuk buku panduan atau kuota terbatas.
-                  </span>
-                </div>
-              </label>
-
-              <!-- Gemini 2.5 Flash -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-2.5-flash'
-                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 ring-1 ring-blue-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-2.5-flash"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-2.5-flash')}
-                  class="mt-0.5 text-blue-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Brain class="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.5 Flash</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold border border-blue-300 dark:border-blue-800">Versi 2.5</span>
-                  </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model Flash generasi terbaru 2.5 jika didukung oleh akun Google Anda.
-                  </span>
-                </div>
-              </label>
+                </label>
+              {/each}
             </div>
           </div>
 

@@ -24,9 +24,9 @@ export async function translateBatchWithGemini(
     );
   }
 
-  let model = config.model || process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  let model = config.model || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   if (model === 'gemini-2.5-pro') {
-    model = 'gemini-1.5-pro';
+    model = 'gemini-3.8-flash';
   }
 
   if (batch.items.length === 0) {
@@ -40,6 +40,19 @@ export async function translateBatchWithGemini(
     batch.items.map((i) => ({ id: i.id, html: i.originalHtml })),
     style
   );
+
+  const requestConfig: any = {
+    systemInstruction,
+    temperature: 0.3,
+    responseMimeType: 'application/json'
+  };
+
+  // For Gemini 3.5+ models, minimize thinking depth to save quota and generate immediate translations
+  if (model.includes('3.8') || model.includes('3.7') || model.includes('3.6') || model.includes('3.5')) {
+    requestConfig.thinkingConfig = { thinkingLevel: 'MINIMAL' };
+  } else if (model.includes('2.5')) {
+    requestConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
 
   const maxRetries = 3;
   let attempt = 0;
@@ -56,11 +69,7 @@ export async function translateBatchWithGemini(
       const response = await ai.models.generateContent({
         model,
         contents: prompt,
-        config: {
-          systemInstruction,
-          temperature: 0.3,
-          responseMimeType: 'application/json'
-        }
+        config: requestConfig
       });
 
       const responseText = response.text || '';
@@ -122,17 +131,67 @@ export async function translateBatchWithGemini(
         throw new Error('Translation cancelled by user');
       }
 
-      // If the model was 404 / unavailable, switch immediately to gemini-1.5-flash
+      // If thinkingConfig is rejected by older or unsupported model, remove it and retry
+      if (requestConfig.thinkingConfig && err.message?.toLowerCase().includes('thinking')) {
+        console.warn(`[Batch ${batch.id}] thinkingConfig not supported for ${model}, disabling thinkingConfig...`);
+        delete requestConfig.thinkingConfig;
+      }
+
+      // If the model was 404 / unavailable, query available models for this specific API key
       if (
         err.message &&
         (err.message.includes('NOT_FOUND') ||
           err.message.includes('404') ||
+          err.message.includes('not found') ||
           err.message.includes('no longer available'))
       ) {
-        console.warn(
-          `[Batch ${batch.id}] Model ${model} is not available (404). Automatically switching to gemini-1.5-flash for subsequent attempts...`
-        );
-        model = 'gemini-1.5-flash';
+        try {
+          console.warn(
+            `[Batch ${batch.id}] Model ${model} is not available (404). Querying available models from Google...`
+          );
+          const listPager = await ai.models.list();
+          const validModels: string[] = [];
+          for await (const m of listPager) {
+            const mName = m.name || '';
+            if (
+              mName.includes('gemini') &&
+              !mName.includes('embedding') &&
+              !mName.includes('imagen') &&
+              !mName.includes('aqa')
+            ) {
+              validModels.push(mName.replace(/^models\//, ''));
+            }
+          }
+
+          console.log(`[Batch ${batch.id}] Available models on this API key:`, validModels);
+
+          if (validModels.length > 0) {
+            // Check preference hierarchy
+            const candidateOrder = [
+              'gemini-3.8-flash',
+              'gemini-3.7-flash',
+              'gemini-3.6-flash',
+              'gemini-3.5-flash',
+              'gemini-2.5-flash-lite',
+              'gemini-2.0-flash',
+              'gemini-1.5-pro',
+              'gemini-1.5-flash'
+            ];
+
+            let candidate = candidateOrder.find((c) => c !== model && validModels.includes(c));
+            if (!candidate) {
+              candidate = validModels.find((m) => m !== model) || validModels[0];
+            }
+
+            console.warn(
+              `[Batch ${batch.id}] Automatically switching model from ${model} to verified available model: ${candidate}`
+            );
+            model = candidate;
+          }
+        } catch (listErr: any) {
+          console.error('[Gemini API] Failed to query available models:', listErr.message);
+          model = model === 'gemini-2.0-flash' ? 'gemini-1.5-flash-latest' : 'gemini-2.0-flash';
+        }
       }
 
       if (attempt < maxRetries) {

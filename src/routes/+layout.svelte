@@ -8,10 +8,10 @@
   let isDark = $state(false);
   let showSettings = $state(false);
   let serverHasKey = $state(false);
-  let serverModel = $state('gemini-2.5-flash');
+  let serverModel = $state('gemini-3.8-flash');
 
   let customApiKey = $state('');
-  let customModel = $state('gemini-2.5-flash');
+  let customModel = $state('gemini-3.8-flash');
   let saveSuccess = $state(false);
 
   onMount(async () => {
@@ -31,8 +31,8 @@
     if (savedModel && savedModel !== 'gemini-2.5-pro') {
       customModel = savedModel;
     } else {
-      customModel = 'gemini-1.5-pro';
-      localStorage.setItem('linguabook_custom_model', 'gemini-1.5-pro');
+      customModel = 'gemini-3.8-flash';
+      localStorage.setItem('linguabook_custom_model', 'gemini-3.8-flash');
     }
 
     // Check server config
@@ -224,10 +224,20 @@
             bind:value={customModel}
             class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           >
-            <option value="gemini-1.5-pro">gemini-1.5-pro (👑 Flagship - Sastra & Penalaran Tertinggi)</option>
-            <option value="gemini-2.0-flash">gemini-2.0-flash (🚀 Kilat & Generasi 2.0)</option>
-            <option value="gemini-1.5-flash">gemini-1.5-flash (⚡ Sangat Stabil & Hemat Kuota)</option>
-            <option value="gemini-2.5-flash">gemini-2.5-flash (🌟 Model 2.5 Flash)</option>
+            <optgroup label="🌟 Generasi Terbaru 3.x (High-End Flash)">
+              <option value="gemini-3.8-flash">gemini-3.8-flash (👑 Flash Tercerdas - Alur Kerja Kompleks & Sastra)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (🎯 Andal - Eksekusi Multi-langkah)</option>
+              <option value="gemini-3.6-flash">gemini-3.6-flash (⚖️ Seimbang - Kecepatan & Multimodal Harian)</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash (⚡ Cepat - Performa Rutin)</option>
+            </optgroup>
+            <optgroup label="🌿 Paling Hemat Kuota">
+              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (🌿 Super Hemat Kuota & Paling Cepat)</option>
+            </optgroup>
+            <optgroup label="🏛️ Model Teruji & Klasik">
+              <option value="gemini-1.5-pro">gemini-1.5-pro (📖 Sastra Klasik - Diksi Sastra Mendalam)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash (🚀 Kilat & Generasi 2.0)</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash (🛡️ Sangat Stabil & Klasik Teruji)</option>
+            </optgroup>
           </select>
         </div>
       </div>
