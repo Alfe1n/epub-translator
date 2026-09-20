@@ -24,7 +24,10 @@ export async function translateBatchWithGemini(
     );
   }
 
-  const model = config.model || process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  let model = config.model || process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  if (model === 'gemini-2.5-pro') {
+    model = 'gemini-1.5-pro';
+  }
 
   if (batch.items.length === 0) {
     batch.status = 'completed';
@@ -117,6 +120,19 @@ export async function translateBatchWithGemini(
 
       if (signal?.aborted) {
         throw new Error('Translation cancelled by user');
+      }
+
+      // If the model was 404 / unavailable, switch immediately to gemini-1.5-flash
+      if (
+        err.message &&
+        (err.message.includes('NOT_FOUND') ||
+          err.message.includes('404') ||
+          err.message.includes('no longer available'))
+      ) {
+        console.warn(
+          `[Batch ${batch.id}] Model ${model} is not available (404). Automatically switching to gemini-1.5-flash for subsequent attempts...`
+        );
+        model = 'gemini-1.5-flash';
       }
 
       if (attempt < maxRetries) {

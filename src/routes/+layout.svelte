@@ -28,7 +28,12 @@
     // Load custom key from local storage if saved
     customApiKey = localStorage.getItem('linguabook_custom_api_key') || '';
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    if (savedModel) customModel = savedModel;
+    if (savedModel && savedModel !== 'gemini-2.5-pro') {
+      customModel = savedModel;
+    } else {
+      customModel = 'gemini-1.5-pro';
+      localStorage.setItem('linguabook_custom_model', 'gemini-1.5-pro');
+    }
 
     // Check server config
     try {
@@ -219,10 +224,10 @@
             bind:value={customModel}
             class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           >
-            <option value="gemini-2.5-pro">gemini-2.5-pro (👑 Flagship - Kualitas Sastra Tertinggi)</option>
-            <option value="gemini-1.5-pro">gemini-1.5-pro (🧠 Sastra Mendalam & Teks Kompleks)</option>
-            <option value="gemini-2.5-flash">gemini-2.5-flash (⚡ Cepat & Hemat Kuota)</option>
-            <option value="gemini-2.0-flash">gemini-2.0-flash (🚀 Kecepatan Kilat)</option>
+            <option value="gemini-1.5-pro">gemini-1.5-pro (👑 Flagship - Sastra & Penalaran Tertinggi)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash (🚀 Kilat & Generasi 2.0)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (⚡ Sangat Stabil & Hemat Kuota)</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash (🌟 Model 2.5 Flash)</option>
           </select>
         </div>
       </div>

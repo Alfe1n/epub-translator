@@ -50,11 +50,16 @@
 
   // Translation Configuration
   let selectedStyle = $state<TranslationStyle>('literary');
-  let selectedModel = $state('gemini-2.5-pro');
+  let selectedModel = $state('gemini-1.5-pro');
 
   onMount(() => {
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    if (savedModel) selectedModel = savedModel;
+    if (savedModel && savedModel !== 'gemini-2.5-pro') {
+      selectedModel = savedModel;
+    } else {
+      selectedModel = 'gemini-1.5-pro';
+      localStorage.setItem('linguabook_custom_model', 'gemini-1.5-pro');
+    }
   });
 
   function setModel(model: string) {
@@ -555,44 +560,18 @@
                 Model Gemini (Pilihan Kualitas)
               </span>
               <span class="text-[11px] font-semibold text-orange-600 dark:text-orange-400">
-                {selectedModel === 'gemini-2.5-pro'
+                {selectedModel === 'gemini-1.5-pro'
                   ? '👑 Flagship Sastra Tertinggi'
-                  : selectedModel === 'gemini-1.5-pro'
-                    ? '🧠 Sastra Mendalam'
-                    : '⚡ Cepat & Ekonomis'}
+                  : selectedModel === 'gemini-2.0-flash'
+                    ? '🚀 Mode Kilat Generasi 2.0'
+                    : '⚡ Stabil & Hemat Kuota'}
               </span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <!-- Gemini 2.5 Pro -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-2.5-pro'
-                  ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30 ring-1 ring-amber-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-2.5-pro"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-2.5-pro')}
-                  class="mt-0.5 text-amber-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Crown class="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.5 Pro</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-800">Paling Bagus</span>
-                  </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model flagship dengan kualitas terjemahan sastra terbaik. Diksi puitis, memahami subteks dan alur dialog novel.
-                  </span>
-                </div>
-              </label>
-
               <!-- Gemini 1.5 Pro -->
               <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
                 selectedModel === 'gemini-1.5-pro'
-                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 ring-1 ring-blue-500/50'
+                  ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30 ring-1 ring-amber-500/50'
                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
               }">
                 <input
@@ -601,42 +580,16 @@
                   value="gemini-1.5-pro"
                   bind:group={selectedModel}
                   onchange={() => setModel('gemini-1.5-pro')}
-                  class="mt-0.5 text-blue-600"
+                  class="mt-0.5 text-amber-600"
                 />
                 <div>
                   <div class="flex items-center gap-1.5">
-                    <Brain class="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <Crown class="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 1.5 Pro</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold border border-blue-300 dark:border-blue-800">Penalaran Tinggi</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-800">Paling Bagus</span>
                   </div>
                   <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Penalaran mendalam dan konsistensi konteks tinggi untuk buku tebal, klasik, dan non-fiksi berbobot.
-                  </span>
-                </div>
-              </label>
-
-              <!-- Gemini 2.5 Flash -->
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedModel === 'gemini-2.5-flash'
-                  ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-1 ring-emerald-500/50'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input
-                  type="radio"
-                  name="model"
-                  value="gemini-2.5-flash"
-                  bind:group={selectedModel}
-                  onchange={() => setModel('gemini-2.5-flash')}
-                  class="mt-0.5 text-emerald-600"
-                />
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <Zap class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.5 Flash</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-800">Cepat & Hemat</span>
-                  </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model cepat, seimbang, dan hemat kuota token. Bagus untuk bacaan umum atau buku panduan.
+                    Model flagship resmi dengan kecerdasan sastra tertinggi. Diksi puitis, memahami subteks, dialog, dan gaya penulisan novel.
                   </span>
                 </div>
               </label>
@@ -659,10 +612,62 @@
                   <div class="flex items-center gap-1.5">
                     <Zap class="w-3.5 h-3.5 text-teal-500 shrink-0" />
                     <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.0 Flash</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 font-semibold border border-teal-300 dark:border-teal-800">Kilat</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 font-semibold border border-teal-300 dark:border-teal-800">Kilat & Modern</span>
                   </div>
                   <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Model generasi 2.0 dengan latensi respons paling singkat untuk terjemahan super cepat.
+                    Model generasi 2.0 dengan latensi respons paling singkat dan pemahaman teks yang tajam.
+                  </span>
+                </div>
+              </label>
+
+              <!-- Gemini 1.5 Flash -->
+              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
+                selectedModel === 'gemini-1.5-flash'
+                  ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-1 ring-emerald-500/50'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+              }">
+                <input
+                  type="radio"
+                  name="model"
+                  value="gemini-1.5-flash"
+                  bind:group={selectedModel}
+                  onchange={() => setModel('gemini-1.5-flash')}
+                  class="mt-0.5 text-emerald-600"
+                />
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <Zap class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 1.5 Flash</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-800">Sangat Stabil</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                    Model paling stabil, cepat, dan sangat hemat kuota token. Cocok untuk buku panduan atau kuota terbatas.
+                  </span>
+                </div>
+              </label>
+
+              <!-- Gemini 2.5 Flash -->
+              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
+                selectedModel === 'gemini-2.5-flash'
+                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 ring-1 ring-blue-500/50'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+              }">
+                <input
+                  type="radio"
+                  name="model"
+                  value="gemini-2.5-flash"
+                  bind:group={selectedModel}
+                  onchange={() => setModel('gemini-2.5-flash')}
+                  class="mt-0.5 text-blue-600"
+                />
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <Brain class="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Gemini 2.5 Flash</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold border border-blue-300 dark:border-blue-800">Versi 2.5</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                    Model Flash generasi terbaru 2.5 jika didukung oleh akun Google Anda.
                   </span>
                 </div>
               </label>
