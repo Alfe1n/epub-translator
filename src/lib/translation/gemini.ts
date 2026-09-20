@@ -34,6 +34,21 @@ export async function translateBatchWithGemini(
     return batch;
   }
 
+  // Pre-flight check: If batch has no alphabetic text (e.g. pure numbers, code brackets, empty spaces), complete with 0 API calls!
+  const hasTranslatableText = batch.items.some((item) => {
+    const text = (item.originalText || '').trim();
+    return /[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]/.test(text);
+  });
+
+  if (!hasTranslatableText) {
+    console.log(`[Batch ${batch.id}] No translatable text detected. Marking completed with 0 Gemini API calls (quota saved).`);
+    for (const item of batch.items) {
+      item.translatedHtml = item.originalHtml;
+    }
+    batch.status = 'completed';
+    return batch;
+  }
+
   const ai = new GoogleGenAI({ apiKey });
   const systemInstruction = getSystemInstruction(style);
   const prompt = buildBatchPrompt(
@@ -47,7 +62,7 @@ export async function translateBatchWithGemini(
     responseMimeType: 'application/json'
   };
 
-  const maxRetries = 5;
+  const maxRetries = 4;
   let attempt = 0;
   let lastError: any = null;
 
@@ -122,6 +137,18 @@ export async function translateBatchWithGemini(
 
       if (signal?.aborted) {
         throw new Error('Translation cancelled by user');
+      }
+
+      // Fatal errors that should never be retried (avoids burning quota/time)
+      const isFatalAuthError = err.message && (
+        err.message.includes('API_KEY_INVALID') ||
+        err.message.includes('API key not valid') ||
+        err.message.includes('PERMISSION_DENIED') ||
+        err.message.includes('UNAUTHENTICATED')
+      );
+      if (isFatalAuthError) {
+        console.error(`[Batch ${batch.id}] Fatal API key authentication error: ${err.message}. Aborting retries immediately.`);
+        break;
       }
 
       // If thinkingConfig is rejected by older or unsupported model, remove it and retry

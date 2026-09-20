@@ -179,13 +179,16 @@ export async function startTranslationSession(
     return;
   }
 
-  // Queue runner with concurrency limit
+  // Queue runner with concurrency limit & Quota Circuit Breaker
   let runningCount = 0;
   let nextBatchIdx = 0;
   let hasErrors = false;
+  let consecutiveErrors = 0;
+  const MAX_CONSECUTIVE_ERRORS = 3;
+  let circuitBroken = false;
 
   async function processNext(): Promise<void> {
-    if (signal.aborted) return;
+    if (signal.aborted || circuitBroken) return;
     if (nextBatchIdx >= pendingBatches.length) return;
 
     const batch = pendingBatches[nextBatchIdx++];
@@ -200,6 +203,7 @@ export async function startTranslationSession(
 
     try {
       await translateBatchWithGemini(batch, session!.style, config, signal);
+      consecutiveErrors = 0; // Reset consecutive failures on success
       session!.completedBatches++;
 
       // Check if all batches in this chapter are completed
@@ -214,15 +218,31 @@ export async function startTranslationSession(
         return;
       }
       hasErrors = true;
+      consecutiveErrors++;
       chapter.status = 'error';
-      console.error(`Error translating batch ${batch.id}:`, err);
+      console.error(`[Session ${session!.id}] Error translating batch ${batch.id}:`, err.message || err);
+
+      // Trigger Circuit Breaker to protect user's Gemini quota
+      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+        circuitBroken = true;
+        session!.status = 'error';
+        console.warn(
+          `[Session ${session!.id}] 🛑 Circuit Breaker Triggered: ${consecutiveErrors} consecutive batches failed. Auto-pausing queue to prevent burning Gemini quota.`
+        );
+        broadcastProgress(
+          session!,
+          '🛑 Rem Pengaman Kuota Aktif: Sistem otomatis menjeda antrean untuk melindungi kuota Gemini Anda. Silakan periksa koneksi atau klik Retry.'
+        );
+        return;
+      }
+
       broadcastProgress(
         session!,
         `Failed batch ${batch.batchIndex + 1} of ${chapter.title}: ${err.message}`
       );
     } finally {
       runningCount--;
-      if (!signal.aborted && nextBatchIdx < pendingBatches.length) {
+      if (!signal.aborted && !circuitBroken && nextBatchIdx < pendingBatches.length) {
         // Small pacing delay to prevent hitting Google AI Studio RPM bursts
         await new Promise((resolve) => setTimeout(resolve, 800));
         await processNext();
@@ -245,6 +265,11 @@ export async function startTranslationSession(
   if (signal.aborted) {
     session.status = 'cancelled';
     broadcastProgress(session, 'Translation cancelled by user.');
+    return;
+  }
+
+  if (circuitBroken) {
+    session.status = 'error';
     return;
   }
 

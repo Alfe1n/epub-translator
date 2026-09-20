@@ -23,23 +23,33 @@ export function extractTranslatableBlocks(
   xhtml: string,
   chapterIndex: number
 ): ExtractedChapterContent {
-  const $ = cheerio.load(xhtml, { xml: true });
-
-  // Detect title
-  let title = '';
-  const titleTag = $('title').first().text().trim();
-  const h1Tag = $('h1').first().text().trim();
-  const h2Tag = $('h2').first().text().trim();
-
-  if (h1Tag) {
-    title = h1Tag;
-  } else if (h2Tag) {
-    title = h2Tag;
-  } else if (titleTag) {
-    title = titleTag;
-  } else {
-    title = `Chapter ${chapterIndex + 1}`;
+  if (!xhtml || typeof xhtml !== 'string' || xhtml.trim().length === 0) {
+    return {
+      title: `Chapter ${chapterIndex + 1}`,
+      wordCount: 0,
+      batches: [],
+      annotatedXhtml: xhtml || ''
+    };
   }
+
+  try {
+    const $ = cheerio.load(xhtml, { xml: true });
+
+    // Detect title
+    let title = '';
+    const titleTag = $('title').first().text().trim();
+    const h1Tag = $('h1').first().text().trim();
+    const h2Tag = $('h2').first().text().trim();
+
+    if (h1Tag) {
+      title = h1Tag;
+    } else if (h2Tag) {
+      title = h2Tag;
+    } else if (titleTag) {
+      title = titleTag;
+    } else {
+      title = `Chapter ${chapterIndex + 1}`;
+    }
 
   const items: TranslationItem[] = [];
   let itemCounter = 0;
@@ -164,12 +174,21 @@ export function extractTranslatableBlocks(
     });
   }
 
-  return {
-    title,
-    wordCount: totalWordCount,
-    batches,
-    annotatedXhtml: $.xml()
-  };
+    return {
+      title,
+      wordCount: totalWordCount,
+      batches,
+      annotatedXhtml: $.xml()
+    };
+  } catch (err: any) {
+    console.warn(`[Chapter ${chapterIndex}] Failed to parse XML: ${err.message}. Safely returning empty batches to save quota.`);
+    return {
+      title: `Chapter ${chapterIndex + 1}`,
+      wordCount: 0,
+      batches: [],
+      annotatedXhtml: xhtml
+    };
+  }
 }
 
 /**
