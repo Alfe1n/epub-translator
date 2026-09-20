@@ -8,10 +8,10 @@
   let isDark = $state(false);
   let showSettings = $state(false);
   let serverHasKey = $state(false);
-  let serverModel = $state('gemini-3.8-flash');
+  let serverModel = $state('gemini-3.5-flash-lite');
 
   let customApiKey = $state('');
-  let customModel = $state('gemini-3.8-flash');
+  let customModel = $state('gemini-3.5-flash-lite');
   let saveSuccess = $state(false);
 
   onMount(async () => {
@@ -28,11 +28,12 @@
     // Load custom key from local storage if saved
     customApiKey = localStorage.getItem('linguabook_custom_api_key') || '';
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    if (savedModel && savedModel !== 'gemini-2.5-pro') {
+    const isObsolete = !savedModel || savedModel.includes('1.5') || savedModel.includes('2.0') || savedModel.includes('2.5') || savedModel.includes('3.8');
+    if (savedModel && !isObsolete) {
       customModel = savedModel;
     } else {
-      customModel = 'gemini-3.8-flash';
-      localStorage.setItem('linguabook_custom_model', 'gemini-3.8-flash');
+      customModel = 'gemini-3.5-flash-lite';
+      localStorage.setItem('linguabook_custom_model', 'gemini-3.5-flash-lite');
     }
 
     // Check server config
@@ -224,19 +225,15 @@
             bind:value={customModel}
             class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
           >
-            <optgroup label="🌟 Generasi Terbaru 3.x (High-End Flash)">
-              <option value="gemini-3.8-flash">gemini-3.8-flash (👑 Flash Tercerdas - Alur Kerja Kompleks & Sastra)</option>
-              <option value="gemini-3.7-flash">gemini-3.7-flash (🎯 Andal - Eksekusi Multi-langkah)</option>
-              <option value="gemini-3.6-flash">gemini-3.6-flash (⚖️ Seimbang - Kecepatan & Multimodal Harian)</option>
-              <option value="gemini-3.5-flash">gemini-3.5-flash (⚡ Cepat - Performa Rutin)</option>
+            <optgroup label="🌟 Super Kuota (500 Request/Hari - Sangat Direkomendasikan)">
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (🥇 Kuota 500 RPD, 15 RPM - Paling Cepat & Bebas Limit)</option>
+              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (🥈 Kuota 500 RPD, 15 RPM - Sangat Stabil)</option>
             </optgroup>
-            <optgroup label="🌿 Paling Hemat Kuota">
-              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (🌿 Super Hemat Kuota & Paling Cepat)</option>
-            </optgroup>
-            <optgroup label="🏛️ Model Teruji & Klasik">
-              <option value="gemini-1.5-pro">gemini-1.5-pro (📖 Sastra Klasik - Diksi Sastra Mendalam)</option>
-              <option value="gemini-2.0-flash">gemini-2.0-flash (🚀 Kilat & Generasi 2.0)</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash (🛡️ Sangat Stabil & Klasik Teruji)</option>
+            <optgroup label="⚡ Frontier Flash (Batas 20 Request/Hari)">
+              <option value="gemini-3.5-flash">gemini-3.5-flash (Cepat & Stabil - 20 RPD)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Model Tercerdas - 20 RPD)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (Andal & Presisi - 20 RPD)</option>
+              <option value="gemini-3.6-flash">gemini-3.6-flash (Seimbang - 20 RPD)</option>
             </optgroup>
           </select>
         </div>

@@ -24,9 +24,16 @@ export async function translateBatchWithGemini(
     );
   }
 
-  let model = config.model || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-  if (model === 'gemini-2.5-pro') {
-    model = 'gemini-3.8-flash';
+  let model = config.model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  // Map retired or 404 models directly to active 500 RPD gemini-3.5-flash-lite
+  if (
+    model === 'gemini-2.5-flash-lite' ||
+    model === 'gemini-1.5-flash' ||
+    model === 'gemini-1.5-pro' ||
+    model === 'gemini-2.5-pro' ||
+    model === 'gemini-2.0-flash'
+  ) {
+    model = 'gemini-3.5-flash-lite';
   }
 
   if (batch.items.length === 0) {
@@ -163,22 +170,24 @@ export async function translateBatchWithGemini(
       const isNotFound = err.message && (err.message.includes('NOT_FOUND') || err.message.includes('404') || err.message.includes('not found'));
 
       if (isOverloaded || isRateLimited || isNotFound) {
-        // High capacity fallback order: gemini-2.5-flash-lite (10 RPM, 0 RPD used) -> gemini-2.5-flash
+        // High capacity fallback order: gemini-3.5-flash-lite (500 RPD, 15 RPM) -> gemini-3.1-flash-lite (500 RPD) -> gemini-3.5-flash
         const failoverMap: Record<string, string> = {
-          'gemini-3.8-flash': 'gemini-2.5-flash-lite',
-          'gemini-3.7-flash': 'gemini-2.5-flash-lite',
-          'gemini-3.6-flash': 'gemini-2.5-flash-lite',
-          'gemini-3.5-flash': 'gemini-2.5-flash-lite',
-          'gemini-2.5-flash': 'gemini-2.5-flash-lite',
-          'gemini-1.5-pro': 'gemini-2.5-flash-lite',
-          'gemini-1.5-flash': 'gemini-2.5-flash-lite',
-          'gemini-2.0-flash': 'gemini-2.5-flash-lite',
-          'gemini-2.5-flash-lite': 'gemini-2.5-flash'
+          'gemini-3.8-flash': 'gemini-3.5-flash-lite',
+          'gemini-3.7-flash': 'gemini-3.5-flash-lite',
+          'gemini-3.6-flash': 'gemini-3.5-flash-lite',
+          'gemini-3.5-flash': 'gemini-3.5-flash-lite',
+          'gemini-2.5-flash': 'gemini-3.5-flash-lite',
+          'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',
+          'gemini-1.5-pro': 'gemini-3.5-flash-lite',
+          'gemini-1.5-flash': 'gemini-3.5-flash-lite',
+          'gemini-2.0-flash': 'gemini-3.5-flash-lite',
+          'gemini-3.5-flash-lite': 'gemini-3.1-flash-lite',
+          'gemini-3.1-flash-lite': 'gemini-3.5-flash'
         };
 
-        const targetModel = failoverMap[model] || 'gemini-2.5-flash-lite';
+        const targetModel = failoverMap[model] || 'gemini-3.5-flash-lite';
         console.warn(
-          `[Batch ${batch.id}] Model ${model} encountered ${isOverloaded ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : '404 Not Found'}. Seamlessly switching to verified high-availability model: ${targetModel}...`
+          `[Batch ${batch.id}] Model ${model} encountered ${isOverloaded ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : '404 Not Found'}. Seamlessly switching to verified high-quota model: ${targetModel}...`
         );
         model = targetModel;
       }

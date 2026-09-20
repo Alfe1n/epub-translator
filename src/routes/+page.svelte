@@ -50,13 +50,13 @@
 
   // Translation Configuration
   let selectedStyle = $state<TranslationStyle>('literary');
-  let selectedModel = $state('gemini-2.5-flash-lite');
-  let modelCategoryFilter = $state<'all' | 'frontier' | 'efficiency' | 'classic'>('all');
+  let selectedModel = $state('gemini-3.5-flash-lite');
+  let modelCategoryFilter = $state<'all' | 'efficiency' | 'frontier'>('all');
 
   interface ModelOption {
     id: string;
     name: string;
-    category: 'frontier' | 'efficiency' | 'classic';
+    category: 'efficiency' | 'frontier';
     badge: string;
     badgeStyle: string;
     borderActive: string;
@@ -67,37 +67,26 @@
 
   const availableModelOptions: ModelOption[] = [
     {
-      id: 'gemini-3.8-flash',
-      name: 'Gemini 3.8 Flash',
-      category: 'frontier',
-      badge: '👑 Tercerdas',
-      badgeStyle: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800',
-      borderActive: 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30',
-      ringActive: 'ring-purple-500/50 text-purple-600',
-      description: 'Model Flash tercerdas untuk alur kerja kompleks, rekayasa software & sastra tingkat tinggi.',
-      usageNote: '⚡ Usage sangat hemat (kelas Flash)'
+      id: 'gemini-3.5-flash-lite',
+      name: 'Gemini 3.5 Flash-Lite',
+      category: 'efficiency',
+      badge: '🥇 Kuota 500 RPD (Paling Rekomended)',
+      badgeStyle: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
+      borderActive: 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40',
+      ringActive: 'ring-emerald-500/50 text-emerald-600',
+      description: 'Model resmi terbaru Google dengan kuota TERBESAR (500 request/hari, 15 RPM). Paling cepat, tidak kena limit 20 RPD & bebas macet.',
+      usageNote: '🌟 Kuota 500 Request/Hari (Bisa 30-50 Novel Utuh/Hari)'
     },
     {
-      id: 'gemini-3.7-flash',
-      name: 'Gemini 3.7 Flash',
-      category: 'frontier',
-      badge: '🎯 Andal & Presisi',
-      badgeStyle: 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800',
-      borderActive: 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30',
-      ringActive: 'ring-indigo-500/50 text-indigo-600',
-      description: 'Model generasi 3.7 untuk akurasi tinggi dan eksekusi multi-langkah yang konsisten.',
-      usageNote: '⚡ Hemat kuota token'
-    },
-    {
-      id: 'gemini-3.6-flash',
-      name: 'Gemini 3.6 Flash',
-      category: 'frontier',
-      badge: '⚖️ Seimbang',
-      badgeStyle: 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800',
-      borderActive: 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30',
-      ringActive: 'ring-blue-500/50 text-blue-600',
-      description: 'Menyeimbangkan kecepatan kilat dan kemampuan multimodal untuk tugas harian.',
-      usageNote: '⚡ Cepat & efisien'
+      id: 'gemini-3.1-flash-lite',
+      name: 'Gemini 3.1 Flash-Lite',
+      category: 'efficiency',
+      badge: '🥈 Kuota 500 RPD',
+      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
+      borderActive: 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/40',
+      ringActive: 'ring-teal-500/50 text-teal-600',
+      description: 'Model generasi 3.1 dengan kuota harian besar (500 request/hari, 15 RPM). Cadangan terbaik jika 3.5 sibuk.',
+      usageNote: '⚡ Kuota 500 Request/Hari (Cadangan Kuota Besar)'
     },
     {
       id: 'gemini-3.5-flash',
@@ -108,61 +97,52 @@
       borderActive: 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30',
       ringActive: 'ring-cyan-500/50 text-cyan-600',
       description: 'Memberikan kecepatan dasar dan performa untuk beban kerja rutin.',
-      usageNote: '⚡ Ringan & andal'
+      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
     },
     {
-      id: 'gemini-2.5-flash-lite',
-      name: 'Gemini 2.5 Flash-Lite',
-      category: 'efficiency',
-      badge: '🌿 Super Hemat Kuota',
-      badgeStyle: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
-      borderActive: 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30',
-      ringActive: 'ring-emerald-500/50 text-emerald-600',
-      description: 'Model multimodal paling hemat dan tercepat di kelasnya. Cocok untuk novel sangat tebal.',
-      usageNote: '🌿 Biaya token minimal (mendekati Rp 0)'
+      id: 'gemini-3.8-flash',
+      name: 'Gemini 3.8 Flash',
+      category: 'frontier',
+      badge: '👑 Tercerdas',
+      badgeStyle: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800',
+      borderActive: 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30',
+      ringActive: 'ring-purple-500/50 text-purple-600',
+      description: 'Model Flash tercerdas untuk alur kerja kompleks, rekayasa software & sastra tingkat tinggi.',
+      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
     },
     {
-      id: 'gemini-1.5-pro',
-      name: 'Gemini 1.5 Pro',
-      category: 'classic',
-      badge: '📖 Sastra Pro',
-      badgeStyle: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800',
-      borderActive: 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30',
-      ringActive: 'ring-amber-500/50 text-amber-600',
-      description: 'Model flagship klasik dengan kecerdasan sastra tinggi, pemahaman subteks dan dialog puitis.',
-      usageNote: '👑 Diksi novel sastra'
+      id: 'gemini-3.7-flash',
+      name: 'Gemini 3.7 Flash',
+      category: 'frontier',
+      badge: '🎯 Andal & Presisi',
+      badgeStyle: 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800',
+      borderActive: 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30',
+      ringActive: 'ring-indigo-500/50 text-indigo-600',
+      description: 'Model generasi 3.7 untuk akurasi tinggi dan eksekusi multi-langkah yang konsisten.',
+      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
     },
     {
-      id: 'gemini-2.0-flash',
-      name: 'Gemini 2.0 Flash',
-      category: 'classic',
-      badge: '🚀 Kilat 2.0',
-      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
-      borderActive: 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/30',
-      ringActive: 'ring-teal-500/50 text-teal-600',
-      description: 'Model generasi 2.0 dengan latensi respons paling singkat.',
-      usageNote: '🚀 Latensi sangat cepat'
-    },
-    {
-      id: 'gemini-1.5-flash',
-      name: 'Gemini 1.5 Flash',
-      category: 'classic',
-      badge: '🛡️ Klasik Teruji',
-      badgeStyle: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
-      borderActive: 'border-slate-500 bg-slate-50/50 dark:bg-slate-900/30',
-      ringActive: 'ring-slate-500/50 text-slate-600',
-      description: 'Model paling stabil dan teruji untuk kuota terbatas.',
-      usageNote: '🛡️ Sangat stabil'
+      id: 'gemini-3.6-flash',
+      name: 'Gemini 3.6 Flash',
+      category: 'frontier',
+      badge: '⚖️ Seimbang',
+      badgeStyle: 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800',
+      borderActive: 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30',
+      ringActive: 'ring-blue-500/50 text-blue-600',
+      description: 'Menyeimbangkan kecepatan kilat dan kemampuan multimodal untuk tugas harian.',
+      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
     }
   ];
 
   onMount(() => {
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    if (savedModel && savedModel !== 'gemini-2.5-pro' && savedModel !== 'gemini-1.5-flash') {
+    // Auto-migrate any deprecated/exhausted models (1.5, 2.0, 2.5, 3.8) to the active 500 RPD gemini-3.5-flash-lite
+    const isObsolete = !savedModel || savedModel.includes('1.5') || savedModel.includes('2.0') || savedModel.includes('2.5') || savedModel.includes('3.8');
+    if (savedModel && !isObsolete) {
       selectedModel = savedModel;
     } else {
-      selectedModel = 'gemini-2.5-flash-lite';
-      localStorage.setItem('linguabook_custom_model', 'gemini-2.5-flash-lite');
+      selectedModel = 'gemini-3.5-flash-lite';
+      localStorage.setItem('linguabook_custom_model', 'gemini-3.5-flash-lite');
     }
   });
 
@@ -702,28 +682,21 @@
                   onclick={() => modelCategoryFilter = 'all'}
                   class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'all' ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
                 >
-                  Semua (8)
-                </button>
-                <button
-                  type="button"
-                  onclick={() => modelCategoryFilter = 'frontier'}
-                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'frontier' ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
-                >
-                  👑 3.x Flash
+                  Semua ({availableModelOptions.length})
                 </button>
                 <button
                   type="button"
                   onclick={() => modelCategoryFilter = 'efficiency'}
                   class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'efficiency' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
                 >
-                  🌿 Super Hemat
+                  🌟 Kuota 500 RPD
                 </button>
                 <button
                   type="button"
-                  onclick={() => modelCategoryFilter = 'classic'}
-                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'classic' ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
+                  onclick={() => modelCategoryFilter = 'frontier'}
+                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'frontier' ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
                 >
-                  🏛️ Klasik
+                  👑 Frontier (20 RPD)
                 </button>
               </div>
             </div>
