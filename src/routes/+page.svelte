@@ -50,7 +50,7 @@
 
   // Translation Configuration
   let selectedStyle = $state<TranslationStyle>('literary');
-  let selectedModel = $state('gemini-3.8-flash');
+  let selectedModel = $state('gemini-2.5-flash-lite');
   let modelCategoryFilter = $state<'all' | 'frontier' | 'efficiency' | 'classic'>('all');
 
   interface ModelOption {
@@ -158,11 +158,11 @@
 
   onMount(() => {
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    if (savedModel && savedModel !== 'gemini-2.5-pro') {
+    if (savedModel && savedModel !== 'gemini-2.5-pro' && savedModel !== 'gemini-1.5-flash') {
       selectedModel = savedModel;
     } else {
-      selectedModel = 'gemini-3.8-flash';
-      localStorage.setItem('linguabook_custom_model', 'gemini-3.8-flash');
+      selectedModel = 'gemini-2.5-flash-lite';
+      localStorage.setItem('linguabook_custom_model', 'gemini-2.5-flash-lite');
     }
   });
 

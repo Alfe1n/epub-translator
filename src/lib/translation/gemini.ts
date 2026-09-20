@@ -163,21 +163,22 @@ export async function translateBatchWithGemini(
       const isNotFound = err.message && (err.message.includes('NOT_FOUND') || err.message.includes('404') || err.message.includes('not found'));
 
       if (isOverloaded || isRateLimited || isNotFound) {
-        // High capacity fallback order: 2.0-flash (15 RPM) -> 2.5-flash-lite -> 1.5-flash
+        // High capacity fallback order: gemini-2.5-flash-lite (10 RPM, 0 RPD used) -> gemini-2.5-flash
         const failoverMap: Record<string, string> = {
-          'gemini-3.8-flash': 'gemini-2.0-flash',
-          'gemini-3.7-flash': 'gemini-2.0-flash',
-          'gemini-3.6-flash': 'gemini-2.0-flash',
-          'gemini-3.5-flash': 'gemini-2.0-flash',
-          'gemini-1.5-pro': 'gemini-2.0-flash',
+          'gemini-3.8-flash': 'gemini-2.5-flash-lite',
+          'gemini-3.7-flash': 'gemini-2.5-flash-lite',
+          'gemini-3.6-flash': 'gemini-2.5-flash-lite',
+          'gemini-3.5-flash': 'gemini-2.5-flash-lite',
+          'gemini-2.5-flash': 'gemini-2.5-flash-lite',
+          'gemini-1.5-pro': 'gemini-2.5-flash-lite',
+          'gemini-1.5-flash': 'gemini-2.5-flash-lite',
           'gemini-2.0-flash': 'gemini-2.5-flash-lite',
-          'gemini-2.5-flash-lite': 'gemini-1.5-flash',
-          'gemini-1.5-flash': 'gemini-2.0-flash'
+          'gemini-2.5-flash-lite': 'gemini-2.5-flash'
         };
 
-        const targetModel = failoverMap[model] || 'gemini-2.0-flash';
+        const targetModel = failoverMap[model] || 'gemini-2.5-flash-lite';
         console.warn(
-          `[Batch ${batch.id}] Model ${model} encountered ${isOverloaded ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : '404 Not Found'}. Seamlessly switching to high-availability model: ${targetModel}...`
+          `[Batch ${batch.id}] Model ${model} encountered ${isOverloaded ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : '404 Not Found'}. Seamlessly switching to verified high-availability model: ${targetModel}...`
         );
         model = targetModel;
       }

@@ -5,8 +5,8 @@ import type { TranslationItem, TranslationBatch } from '$lib/epub/types';
 const BLOCK_SELECTOR = 'p, h1, h2, h3, h4, h5, h6, li, blockquote, figcaption, dt, dd, caption';
 const CHILD_BLOCKS = 'p, h1, h2, h3, h4, h5, h6, li, blockquote, figcaption, dt, dd, caption, div, ul, ol, table';
 
-const MAX_BATCH_WORDS = 1200;
-const MAX_BATCH_ITEMS = 15;
+const MAX_BATCH_WORDS = 3500;
+const MAX_BATCH_ITEMS = 35;
 
 export interface ExtractedChapterContent {
   title: string;
