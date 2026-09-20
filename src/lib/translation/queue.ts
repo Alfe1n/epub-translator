@@ -223,15 +223,20 @@ export async function startTranslationSession(
     } finally {
       runningCount--;
       if (!signal.aborted && nextBatchIdx < pendingBatches.length) {
+        // Small pacing delay to prevent hitting Google AI Studio RPM bursts
+        await new Promise((resolve) => setTimeout(resolve, 800));
         await processNext();
       }
     }
   }
 
-  // Launch initial concurrent workers
+  // Launch initial concurrent workers with slight stagger
   const workerPromises: Promise<void>[] = [];
   const initialWorkers = Math.min(MAX_CONCURRENT, pendingBatches.length);
   for (let i = 0; i < initialWorkers; i++) {
+    if (i > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
     workerPromises.push(processNext());
   }
 

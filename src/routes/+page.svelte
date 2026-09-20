@@ -402,6 +402,24 @@
     }
   }
 
+  function formatBatchError(errorText: string): string {
+    if (!errorText) return 'Terjadi kesalahan jaringan atau server.';
+    try {
+      const parsed = JSON.parse(errorText);
+      if (parsed?.error?.message) {
+        errorText = parsed.error.message;
+      }
+    } catch {}
+
+    if (errorText.includes('503') || errorText.includes('high demand') || errorText.includes('UNAVAILABLE')) {
+      return '⚠️ Server Google sedang sibuk (503 High Demand). Silakan klik Retry (sistem otomatis beralih ke model stabil).';
+    }
+    if (errorText.includes('429') || errorText.includes('RESOURCE_EXHAUSTED') || errorText.includes('quota')) {
+      return '⏳ Batas kuota request per menit terlampaui (429 Rate Limit). Tunggu sebentar lalu klik Retry.';
+    }
+    return errorText;
+  }
+
   // --- Retry Failed Batch ---
   async function handleRetryBatch(chapterIndex: number, batchIndex: number) {
     if (!sessionId || isRetryingBatch) return;
@@ -431,9 +449,17 @@
         (b) => !(b.chapterIndex === chapterIndex && b.batchIndex === batchIndex)
       );
     } catch (err: any) {
-      alert(`Retry failed: ${err.message}`);
+      alert(`Retry failed: ${formatBatchError(err.message)}`);
     } finally {
       isRetryingBatch = false;
+    }
+  }
+
+  async function retryAllFailedBatches() {
+    if (!sessionId || isRetryingBatch || failedBatches.length === 0) return;
+    const toRetry = [...failedBatches];
+    for (const fb of toRetry) {
+      await handleRetryBatch(fb.chapterIndex, fb.batchIndex);
     }
   }
 
@@ -924,21 +950,35 @@
         <!-- Failed Batches & Retry UI -->
         {#if failedBatches.length > 0}
           <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 space-y-3">
-            <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-xs">
-              <AlertCircle class="w-4 h-4" />
-              <span>Failed Batches ({failedBatches.length})</span>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-xs">
+                <AlertCircle class="w-4 h-4" />
+                <span>Batch Tertunda ({failedBatches.length})</span>
+              </div>
+              {#if failedBatches.length > 1}
+                <button
+                  onclick={retryAllFailedBatches}
+                  disabled={isRetryingBatch}
+                  class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs flex items-center gap-1 transition-all shadow-sm"
+                >
+                  <RefreshCw class="w-3 h-3 {isRetryingBatch ? 'animate-spin' : ''}" />
+                  <span>Retry Semua ({failedBatches.length})</span>
+                </button>
+              {/if}
             </div>
             <div class="space-y-2">
               {#each failedBatches as fb}
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-950 text-xs">
-                  <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-950 text-xs">
+                  <div class="flex-1 min-w-0 pr-2">
                     <span class="font-semibold text-slate-900 dark:text-white">Chapter {fb.chapterIndex + 1}, Batch {fb.batchIndex + 1}</span>
-                    <span class="text-rose-500 dark:text-rose-400 block text-[11px] truncate max-w-sm">{fb.error}</span>
+                    <span class="text-rose-600 dark:text-rose-400 block text-[11px] mt-0.5 leading-snug">
+                      {formatBatchError(fb.error)}
+                    </span>
                   </div>
                   <button
                     onclick={() => handleRetryBatch(fb.chapterIndex, fb.batchIndex)}
                     disabled={isRetryingBatch}
-                    class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium flex items-center gap-1 transition-colors"
+                    class="self-start sm:self-center shrink-0 px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium flex items-center gap-1.5 transition-colors shadow-sm text-xs"
                   >
                     <RefreshCw class="w-3.5 h-3.5 {isRetryingBatch ? 'animate-spin' : ''}" />
                     <span>Retry</span>

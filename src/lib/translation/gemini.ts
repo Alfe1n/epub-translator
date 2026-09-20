@@ -47,14 +47,7 @@ export async function translateBatchWithGemini(
     responseMimeType: 'application/json'
   };
 
-  // For Gemini 3.5+ models, minimize thinking depth to save quota and generate immediate translations
-  if (model.includes('3.8') || model.includes('3.7') || model.includes('3.6') || model.includes('3.5')) {
-    requestConfig.thinkingConfig = { thinkingLevel: 'MINIMAL' };
-  } else if (model.includes('2.5')) {
-    requestConfig.thinkingConfig = { thinkingBudget: 0 };
-  }
-
-  const maxRetries = 3;
+  const maxRetries = 5;
   let attempt = 0;
   let lastError: any = null;
 
@@ -137,76 +130,66 @@ export async function translateBatchWithGemini(
         delete requestConfig.thinkingConfig;
       }
 
-      // If the model was 404 / unavailable, query available models for this specific API key
-      if (
-        err.message &&
-        (err.message.includes('NOT_FOUND') ||
-          err.message.includes('404') ||
-          err.message.includes('not found') ||
-          err.message.includes('no longer available'))
-      ) {
-        try {
-          console.warn(
-            `[Batch ${batch.id}] Model ${model} is not available (404). Querying available models from Google...`
-          );
-          const listPager = await ai.models.list();
-          const validModels: string[] = [];
-          for await (const m of listPager) {
-            const mName = m.name || '';
-            if (
-              mName.includes('gemini') &&
-              !mName.includes('embedding') &&
-              !mName.includes('imagen') &&
-              !mName.includes('aqa')
-            ) {
-              validModels.push(mName.replace(/^models\//, ''));
-            }
-          }
+      // If 503 (high demand) or 429 (rate limit exhausted) or 404 (not found), failover to high-capacity model
+      const isOverloaded = err.message && (err.message.includes('503') || err.message.includes('high demand') || err.message.includes('UNAVAILABLE'));
+      const isRateLimited = err.message && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED') || err.message.includes('quota'));
+      const isNotFound = err.message && (err.message.includes('NOT_FOUND') || err.message.includes('404') || err.message.includes('not found'));
 
-          console.log(`[Batch ${batch.id}] Available models on this API key:`, validModels);
+      if (isOverloaded || isRateLimited || isNotFound) {
+        // High capacity fallback order: 2.0-flash (15 RPM) -> 2.5-flash-lite -> 1.5-flash
+        const failoverMap: Record<string, string> = {
+          'gemini-3.8-flash': 'gemini-2.0-flash',
+          'gemini-3.7-flash': 'gemini-2.0-flash',
+          'gemini-3.6-flash': 'gemini-2.0-flash',
+          'gemini-3.5-flash': 'gemini-2.0-flash',
+          'gemini-1.5-pro': 'gemini-2.0-flash',
+          'gemini-2.0-flash': 'gemini-2.5-flash-lite',
+          'gemini-2.5-flash-lite': 'gemini-1.5-flash',
+          'gemini-1.5-flash': 'gemini-2.0-flash'
+        };
 
-          if (validModels.length > 0) {
-            // Check preference hierarchy
-            const candidateOrder = [
-              'gemini-3.8-flash',
-              'gemini-3.7-flash',
-              'gemini-3.6-flash',
-              'gemini-3.5-flash',
-              'gemini-2.5-flash-lite',
-              'gemini-2.0-flash',
-              'gemini-1.5-pro',
-              'gemini-1.5-flash'
-            ];
-
-            let candidate = candidateOrder.find((c) => c !== model && validModels.includes(c));
-            if (!candidate) {
-              candidate = validModels.find((m) => m !== model) || validModels[0];
-            }
-
-            console.warn(
-              `[Batch ${batch.id}] Automatically switching model from ${model} to verified available model: ${candidate}`
-            );
-            model = candidate;
-          }
-        } catch (listErr: any) {
-          console.error('[Gemini API] Failed to query available models:', listErr.message);
-          model = model === 'gemini-2.0-flash' ? 'gemini-1.5-flash-latest' : 'gemini-2.0-flash';
-        }
+        const targetModel = failoverMap[model] || 'gemini-2.0-flash';
+        console.warn(
+          `[Batch ${batch.id}] Model ${model} encountered ${isOverloaded ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : '404 Not Found'}. Seamlessly switching to high-availability model: ${targetModel}...`
+        );
+        model = targetModel;
       }
 
       if (attempt < maxRetries) {
-        // Exponential backoff: 1.5s, 3s, 6s + jitter
-        const delay = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 500);
+        // Parse Google's recommended retry delay if present
+        let delay = Math.pow(1.8, attempt) * 1200 + Math.floor(Math.random() * 400);
+        const retryMatch = err.message?.match(/retry in ([\d.]+)s/i);
+        if (retryMatch && retryMatch[1]) {
+          const parsedSec = Math.ceil(parseFloat(retryMatch[1]));
+          if (parsedSec > 0 && parsedSec <= 10) {
+            delay = parsedSec * 1000 + 500;
+          }
+        }
+
         console.warn(
-          `[Batch ${batch.id}] Translation attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`
+          `[Batch ${batch.id}] Translation attempt ${attempt} failed: ${err.message}. Retrying with model ${model} in ${Math.round(delay)}ms...`
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
 
-  // If reached here, all retries failed
+  // Clean error message for user UI
+  let cleanError = lastError?.message || 'Translation failed after retries';
+  try {
+    const parsedErr = JSON.parse(cleanError);
+    if (parsedErr?.error?.message) {
+      cleanError = parsedErr.error.message;
+    }
+  } catch {}
+
+  if (cleanError.includes('503') || cleanError.includes('high demand') || cleanError.includes('UNAVAILABLE')) {
+    cleanError = 'Server Google sedang mengalami lonjakan beban (503 High Demand). Silakan klik tombol Retry.';
+  } else if (cleanError.includes('429') || cleanError.includes('quota') || cleanError.includes('RESOURCE_EXHAUSTED')) {
+    cleanError = 'Batas kuota request per menit terlampaui (429 Rate Limit). Silakan tunggu sebentar lalu klik Retry.';
+  }
+
   batch.status = 'error';
-  batch.error = lastError?.message || 'Translation failed after 3 retries';
-  throw new Error(`Batch ${batch.id} failed: ${batch.error}`);
+  batch.error = cleanError;
+  throw new Error(`Batch ${batch.id} failed: ${cleanError}`);
 }
