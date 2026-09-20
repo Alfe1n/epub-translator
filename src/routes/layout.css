@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Book reader typography styling */
+.reader-content {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.reader-content p {
+  margin-bottom: 1.25em;
+  text-indent: 1.5em;
+  line-height: inherit;
+}
+
+.reader-content p:first-of-type,
+.reader-content h1 + p,
+.reader-content h2 + p,
+.reader-content h3 + p,
+.reader-content blockquote p {
+  text-indent: 0;
+}
+
+.reader-content h1 {
+  font-size: 1.75em;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  text-align: center;
+}
+
+.reader-content h2 {
+  font-size: 1.4em;
+  font-weight: 700;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+
+.reader-content h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.reader-content blockquote {
+  border-left: 3px solid currentColor;
+  opacity: 0.9;
+  padding-left: 1.25rem;
+  margin: 1.25em 0;
+  font-style: italic;
+}
+
+.reader-content em, .reader-content i {
+  font-style: italic;
+}
+
+.reader-content strong, .reader-content b {
+  font-weight: 700;
+}
+
+.reader-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5em auto;
+  display: block;
+}
+
+.reader-content a {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* Reader sepia theme */
+.reader-theme-sepia {
+  background-color: #fbf0d9 !important;
+  color: #42301c !important;
+}
+
+.reader-theme-sepia .reader-paper {
+  background-color: #f5e6c8 !important;
+  color: #42301c !important;
+  border-color: #e5cb9b !important;
+}
