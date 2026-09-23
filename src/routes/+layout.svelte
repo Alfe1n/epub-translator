@@ -1,29 +1,22 @@
 <script lang="ts">
   import './layout.css';
   import { onMount } from 'svelte';
-  import { Sun, Moon, Settings, BookOpen, KeyRound, Check, X, ShieldCheck, AlertCircle } from '@lucide/svelte';
+  import { Settings, BookOpen, KeyRound, Check, X, ShieldCheck, AlertCircle } from '@lucide/svelte';
 
   let { children } = $props();
 
-  let isDark = $state(false);
   let showSettings = $state(false);
   let serverHasKey = $state(false);
-  let serverModel = $state('gemini-3.5-flash-lite');
+  let serverModel = $state('dual-flash-lite');
 
   let customApiKey = $state('');
-  let customModel = $state('gemini-3.5-flash-lite');
+  let customModel = $state('dual-flash-lite');
   let saveSuccess = $state(false);
 
   onMount(async () => {
-    // Check dark mode preference
-    const savedTheme = localStorage.getItem('linguabook_theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      isDark = true;
-      document.documentElement.classList.add('dark');
-    } else {
-      isDark = false;
-      document.documentElement.classList.remove('dark');
-    }
+    // Strictly enforce clean monochrome light theme (remove any dark mode class)
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('linguabook_theme');
 
     // Load custom key from local storage if saved
     customApiKey = localStorage.getItem('linguabook_custom_api_key') || '';
@@ -32,8 +25,8 @@
     if (savedModel && !isObsolete) {
       customModel = savedModel;
     } else {
-      customModel = 'gemini-3.5-flash-lite';
-      localStorage.setItem('linguabook_custom_model', 'gemini-3.5-flash-lite');
+      customModel = 'dual-flash-lite';
+      localStorage.setItem('linguabook_custom_model', 'dual-flash-lite');
     }
 
     // Check server config
@@ -50,17 +43,6 @@
     }
   });
 
-  function toggleTheme() {
-    isDark = !isDark;
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('linguabook_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('linguabook_theme', 'light');
-    }
-  }
-
   function saveSettings() {
     if (customApiKey.trim()) {
       localStorage.setItem('linguabook_custom_api_key', customApiKey.trim());
@@ -72,32 +54,32 @@
     setTimeout(() => {
       saveSuccess = false;
       showSettings = false;
-    }, 1000);
+    }, 800);
   }
 </script>
 
 <svelte:head>
-  <title>LinguaBook - Translate EPUB to Indonesian</title>
-  <meta name="description" content="Translate your EPUB books into natural Indonesian using Google Gemini API." />
+  <title>LinguaBook — EPUB Translator & Reader</title>
+  <meta name="description" content="Translate and read your EPUB books into natural Indonesian using Google Gemini API." />
 </svelte:head>
 
-<div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
-  <!-- Header -->
-  <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+<div class="min-h-screen flex flex-col bg-[#fafafa] text-zinc-900 transition-colors">
+  <!-- Minimalist Monochrome Header -->
+  <header class="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/95 backdrop-blur-md">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <!-- Brand -->
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+        <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center shadow-sm group-hover:bg-zinc-800 transition-colors">
           <BookOpen class="w-5 h-5" />
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">LinguaBook</span>
-            <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
-              EPUB Translator
+            <span class="font-bold text-lg tracking-tight text-zinc-950">LinguaBook</span>
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-300">
+              Translator & Reader
             </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Translate your EPUB books into Indonesian</p>
+          <p class="text-xs text-zinc-500 hidden sm:block">Translate and read EPUB books in Indonesian</p>
         </div>
       </a>
 
@@ -106,42 +88,24 @@
         <!-- API Status Indicator -->
         <button
           onclick={() => showSettings = true}
-          class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors {
-            serverHasKey || customApiKey
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
-              : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800 hover:bg-amber-100'
-          }"
-          title="Click to configure Gemini API Key"
+          class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm"
+          title="Klik untuk konfigurasi Gemini API Key"
         >
-          <span class="w-2 h-2 rounded-full {serverHasKey || customApiKey ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}"></span>
-          <span class="hidden md:inline">
-            {serverHasKey ? 'Gemini Ready' : customApiKey ? 'Custom Key Set' : 'Set Gemini Key'}
+          <span class="w-2 h-2 rounded-full {serverHasKey || customApiKey ? 'bg-zinc-900' : 'bg-zinc-400'}"></span>
+          <span class="hidden md:inline font-mono text-[11px] text-zinc-700">
+            {serverHasKey ? 'API Siap' : customApiKey ? 'Key Kustom' : 'Atur API Key'}
           </span>
-          <KeyRound class="w-3.5 h-3.5" />
+          <KeyRound class="w-3.5 h-3.5 text-zinc-500" />
         </button>
 
         <!-- Settings Button -->
         <button
           onclick={() => showSettings = true}
-          class="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          class="p-2 rounded-xl border border-zinc-200 bg-white text-zinc-700 hover:text-black hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm"
           aria-label="Settings"
-          title="Settings"
+          title="Pengaturan Model & API"
         >
-          <Settings class="w-5 h-5" />
-        </button>
-
-        <!-- Dark/Light Mode Button -->
-        <button
-          onclick={toggleTheme}
-          class="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          aria-label="Toggle theme"
-          title="Toggle Dark / Light Mode"
-        >
-          {#if isDark}
-            <Sun class="w-5 h-5 text-amber-400" />
-          {:else}
-            <Moon class="w-5 h-5 text-slate-600" />
-          {/if}
+          <Settings class="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -153,111 +117,119 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-500">
+  <footer class="border-t border-zinc-200 bg-white py-6 text-center text-xs text-zinc-500">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center gap-1.5">
-        <ShieldCheck class="w-4 h-4 text-emerald-500" />
-        <span>Privacy-first: In-memory session processing. Ebooks are never stored permanently.</span>
+      <div class="flex items-center gap-2 text-zinc-600">
+        <ShieldCheck class="w-4 h-4 text-zinc-900" />
+        <span>Privasi Aman: File buku diproses secara in-memory dan tidak disimpan permanen di server publik.</span>
       </div>
-      <div>
-        <span>Powered by <strong>Google Gemini API</strong></span>
+      <div class="text-zinc-400 text-[11px] font-mono">
+        LinguaBook v0.1 • Monochrome Edition
       </div>
     </div>
   </footer>
 </div>
 
-<!-- Settings Modal -->
+<!-- ================= SETTINGS MODAL ================= -->
 {#if showSettings}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 relative">
-      <button
-        onclick={() => showSettings = false}
-        class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-      >
-        <X class="w-5 h-5" />
-      </button>
-
-      <div class="flex items-center gap-2.5 mb-5">
-        <div class="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-          <KeyRound class="w-5 h-5" />
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-sm animate-in fade-in duration-150">
+    <div class="w-full max-w-md bg-white border border-zinc-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-900 flex items-center justify-center">
+            <KeyRound class="w-4 h-4" />
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-zinc-900">Konfigurasi API & Model</h3>
+            <p class="text-[11px] text-zinc-500">Atur kunci API dan model penerjemah</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-bold text-lg text-slate-900 dark:text-white">API Configuration</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Configure Gemini model and credentials</p>
-        </div>
+        <button
+          onclick={() => showSettings = false}
+          class="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+          aria-label="Tutup"
+        >
+          <X class="w-4 h-4" />
+        </button>
       </div>
 
+      <!-- Server Key Status -->
       {#if serverHasKey}
-        <div class="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-          <Check class="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Server has <strong>GEMINI_API_KEY</strong> configured via environment variable.</span>
+        <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 flex items-center gap-2.5">
+          <Check class="w-4 h-4 text-zinc-900 shrink-0" />
+          <span>Server telah memiliki <strong>GEMINI_API_KEY</strong> aktif di environment.</span>
         </div>
       {:else}
-        <div class="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
-          <AlertCircle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 flex items-start gap-2.5">
+          <AlertCircle class="w-4 h-4 text-zinc-900 shrink-0 mt-0.5" />
           <div>
-            <span>No API key detected in server <code class="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900">.env</code>. You can enter one below or set <code class="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900">GEMINI_API_KEY</code> on your server.</span>
+            <span>Belum ada API key di server. Masukkan API key Gemini gratis Anda di bawah:</span>
           </div>
         </div>
       {/if}
 
+      <!-- Form Inputs -->
       <div class="space-y-4">
         <div>
-          <label for="apikey-input" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Gemini API Key (Optional override)
+          <label for="apikey-input" class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-1.5">
+            Gemini API Key (Opsional)
           </label>
           <input
             id="apikey-input"
             type="password"
             bind:value={customApiKey}
-            placeholder={serverHasKey ? 'Using server key (leave blank to keep)' : 'AIzaSy...'}
-            class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+            placeholder={serverHasKey ? 'Menggunakan key server (kosongkan jika tidak diubah)' : 'AIzaSy...'}
+            class="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-300 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:bg-white transition-all font-mono"
           />
-          <p class="text-[11px] text-slate-400 mt-1">Get an API key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="text-orange-500 hover:underline">Google AI Studio</a>. Saved only in your browser session.</p>
+          <p class="text-[11px] text-zinc-500 mt-1">
+            Dapatkan API key gratis di <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="text-zinc-900 font-semibold underline underline-offset-2">Google AI Studio</a>.
+          </p>
         </div>
 
         <div>
-          <label for="model-select" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Gemini Model
+          <label for="model-select" class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-1.5">
+            Model Mesin Penerjemah
           </label>
           <select
             id="model-select"
             bind:value={customModel}
-            class="w-full px-3.5 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+            class="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-300 bg-zinc-50 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:bg-white transition-all"
           >
-            <optgroup label="🚀 Dual-Engine Anti Limit (1.000 Request/Hari - Rekomendasi #1)">
-              <option value="dual-flash-lite">dual-flash-lite (👑 Rotasi Otomatis 3.5 + 3.1 Lite - Kuota 1.000 RPD, Bebas 15 RPM)</option>
+            <optgroup label="🚀 Dual-Engine Anti Limit (1.000 Request/Hari - Rekomendasi)">
+              <option value="dual-flash-lite">dual-flash-lite (Rotasi Otomatis 3.5 + 3.1 Lite — 1.000 RPD, Bebas Limit)</option>
             </optgroup>
             <optgroup label="🌟 Super Kuota (500 Request/Hari)">
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (🥇 Kuota 500 RPD, 15 RPM - 392 Sisa)</option>
-              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (🥈 Kuota 500 RPD, 15 RPM - 499 Sisa Segar)</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Kuota 500 RPD, 15 RPM)</option>
+              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Kuota 500 RPD, 15 RPM)</option>
             </optgroup>
             <optgroup label="⚡ Frontier Flash (Batas 20 Request/Hari)">
-              <option value="gemini-3.5-flash">gemini-3.5-flash (Cepat & Stabil - 20 RPD)</option>
-              <option value="gemini-3.8-flash">gemini-3.8-flash (Model Tercerdas - 20 RPD)</option>
-              <option value="gemini-3.7-flash">gemini-3.7-flash (Andal & Presisi - 20 RPD)</option>
-              <option value="gemini-3.6-flash">gemini-3.6-flash (Seimbang - 20 RPD)</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash (Cepat & Stabil — 20 RPD)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Model Tercerdas — 20 RPD)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (Andal & Presisi — 20 RPD)</option>
+              <option value="gemini-3.6-flash">gemini-3.6-flash (Seimbang — 20 RPD)</option>
             </optgroup>
           </select>
         </div>
       </div>
 
-      <div class="mt-6 flex justify-end gap-2.5">
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-2.5 pt-2">
         <button
           onclick={() => showSettings = false}
-          class="px-4 py-2 text-sm font-medium rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
         >
-          Cancel
+          Batal
         </button>
         <button
           onclick={saveSettings}
-          class="px-4 py-2 text-sm font-medium rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/20 flex items-center gap-1.5 transition-all"
+          class="px-5 py-2 rounded-xl text-xs font-semibold bg-zinc-950 hover:bg-zinc-800 text-white flex items-center gap-1.5 transition-all shadow-sm"
         >
           {#if saveSuccess}
-            <Check class="w-4 h-4" />
-            <span>Saved!</span>
+            <Check class="w-3.5 h-3.5" />
+            <span>Tersimpan!</span>
           {:else}
-            <span>Save Settings</span>
+            <span>Simpan Pengaturan</span>
           {/if}
         </button>
       </div>

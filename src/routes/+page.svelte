@@ -14,7 +14,6 @@
     ChevronLeft,
     ChevronRight,
     Sliders,
-    Sparkles,
     Check,
     Languages,
     Clock,
@@ -22,9 +21,14 @@
     Columns,
     Maximize2,
     Minimize2,
-    Crown,
     Zap,
-    Brain
+    Search,
+    AlignLeft,
+    AlignJustify,
+    ArrowLeft,
+    List,
+    Type,
+    ArrowRight
   } from '@lucide/svelte';
   import type { TranslationStyle, TranslationProgressEvent } from '$lib/epub/types';
 
@@ -58,9 +62,6 @@
     name: string;
     category: 'efficiency' | 'frontier';
     badge: string;
-    badgeStyle: string;
-    borderActive: string;
-    ringActive: string;
     description: string;
     usageNote: string;
   }
@@ -71,89 +72,80 @@
       name: 'Dual-Engine Lite (3.5 + 3.1)',
       category: 'efficiency',
       badge: '👑 Kuota 1.000 RPD (Paling Direkomendasikan)',
-      badgeStyle: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
-      borderActive: 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40',
-      ringActive: 'ring-emerald-500/50 text-emerald-600',
-      description: 'Otomatis bergantian antara Gemini 3.5 & 3.1 Flash-Lite per bab. Membagi beban RPM agar tidak kuning/macet, total kuota gabungan 1.000 request/hari!',
-      usageNote: '🚀 Kuota 1.000 Request/Hari (Bisa 70-100 Novel Utuh/Hari)'
+      description: 'Otomatis membagi panggilan antara Gemini 3.5 & 3.1 Flash-Lite per bab. Membagi beban RPM agar tidak macet, kuota gabungan 1.000 request/hari.',
+      usageNote: 'Bisa menerjemahkan 70-100 novel utuh per hari tanpa terkena batas'
     },
     {
       id: 'gemini-3.5-flash-lite',
       name: 'Gemini 3.5 Flash-Lite',
       category: 'efficiency',
       badge: '🥇 Kuota 500 RPD',
-      badgeStyle: 'bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-800',
-      borderActive: 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/40',
-      ringActive: 'ring-teal-500/50 text-teal-600',
-      description: 'Model resmi terbaru Google dengan kuota TERBESAR (500 request/hari, 15 RPM). Paling cepat, tidak kena limit 20 RPD & bebas macet.',
-      usageNote: '🌟 Kuota 500 Request/Hari (Tersisa 392 Request Hari Ini)'
+      description: 'Model resmi Google dengan kuota harian besar (500 request/hari, 15 RPM). Cepat, teruji, dan stabil.',
+      usageNote: 'Kuota 500 request/hari (Cukup untuk 35-50 novel per hari)'
     },
     {
       id: 'gemini-3.1-flash-lite',
       name: 'Gemini 3.1 Flash-Lite',
       category: 'efficiency',
-      badge: '🥈 Kuota 500 RPD (Segar)',
-      badgeStyle: 'bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
-      borderActive: 'border-cyan-500 bg-cyan-50/60 dark:bg-cyan-950/40',
-      ringActive: 'ring-cyan-500/50 text-cyan-600',
-      description: 'Model generasi 3.1 dengan kuota harian besar (500 request/hari, 15 RPM). Cadangan terbaik jika 3.5 sibuk.',
-      usageNote: '⚡ Kuota 500 Request/Hari (Masih 499 Request Tersisa!)'
+      badge: '🥈 Kuota 500 RPD (Cadangan Segar)',
+      description: 'Model generasi 3.1 dengan kuota harian 500 request/hari dan 15 RPM. Cadangan berkuota besar yang masih segar.',
+      usageNote: 'Kuota 500 request/hari (Cadangan saat model 3.5 sedang sibuk)'
     },
     {
       id: 'gemini-3.5-flash',
       name: 'Gemini 3.5 Flash',
       category: 'frontier',
-      badge: '⚡ Cepat & Stabil',
-      badgeStyle: 'bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
-      borderActive: 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30',
-      ringActive: 'ring-cyan-500/50 text-cyan-600',
-      description: 'Memberikan kecepatan dasar dan performa untuk beban kerja rutin.',
-      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
+      badge: '⚡ Cepat & Standar',
+      description: 'Memberikan kecepatan tinggi untuk beban kerja rutin.',
+      usageNote: 'Batas 20 request/hari (5 RPM)'
     },
     {
       id: 'gemini-3.8-flash',
       name: 'Gemini 3.8 Flash',
       category: 'frontier',
-      badge: '👑 Tercerdas',
-      badgeStyle: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800',
-      borderActive: 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30',
-      ringActive: 'ring-purple-500/50 text-purple-600',
-      description: 'Model Flash tercerdas untuk alur kerja kompleks, rekayasa software & sastra tingkat tinggi.',
-      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
+      badge: 'Tercerdas',
+      description: 'Model Flash tercerdas untuk alur kerja rumit & diksi sastra.',
+      usageNote: 'Batas 20 request/hari (5 RPM)'
     },
     {
       id: 'gemini-3.7-flash',
       name: 'Gemini 3.7 Flash',
       category: 'frontier',
-      badge: '🎯 Andal & Presisi',
-      badgeStyle: 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800',
-      borderActive: 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30',
-      ringActive: 'ring-indigo-500/50 text-indigo-600',
-      description: 'Model generasi 3.7 untuk akurasi tinggi dan eksekusi multi-langkah yang konsisten.',
-      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
+      badge: 'Andal & Presisi',
+      description: 'Model generasi 3.7 untuk akurasi tinggi dan konsistensi.',
+      usageNote: 'Batas 20 request/hari (5 RPM)'
     },
     {
       id: 'gemini-3.6-flash',
       name: 'Gemini 3.6 Flash',
       category: 'frontier',
-      badge: '⚖️ Seimbang',
-      badgeStyle: 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800',
-      borderActive: 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30',
-      ringActive: 'ring-blue-500/50 text-blue-600',
-      description: 'Menyeimbangkan kecepatan kilat dan kemampuan multimodal untuk tugas harian.',
-      usageNote: '⚠️ Batas 20 Request/Hari (5 RPM)'
+      badge: 'Seimbang',
+      description: 'Menyeimbangkan kecepatan kilat dan pemahaman teks.',
+      usageNote: 'Batas 20 request/hari (5 RPM)'
     }
   ];
 
   onMount(() => {
+    // Strictly light monochrome
+    document.documentElement.classList.remove('dark');
+
     const savedModel = localStorage.getItem('linguabook_custom_model');
-    // Auto-migrate any deprecated/exhausted models (1.5, 2.0, 2.5, 3.8) to dual-flash-lite
     const isObsolete = !savedModel || savedModel.includes('1.5') || savedModel.includes('2.0') || savedModel.includes('2.5') || savedModel.includes('3.8');
     if (savedModel && !isObsolete) {
       selectedModel = savedModel;
     } else {
       selectedModel = 'dual-flash-lite';
       localStorage.setItem('linguabook_custom_model', 'dual-flash-lite');
+    }
+
+    // Load reader preferences from local storage if any
+    const savedFont = localStorage.getItem('linguabook_reader_font');
+    if (savedFont === 'serif' || savedFont === 'sans' || savedFont === 'mono') {
+      readerFontFamily = savedFont;
+    }
+    const savedSize = localStorage.getItem('linguabook_reader_size');
+    if (savedSize) {
+      readerFontSize = parseInt(savedSize, 10) || 18;
     }
   });
 
@@ -180,67 +172,67 @@
   let eventSource: EventSource | null = null;
   let pollingInterval: any = null;
 
-  // Reader / Preview State
+  // ================= READER STATE =================
   let showReader = $state(false);
+  let showTocSidebar = $state(false);
+  let showTypeSettings = $state(false);
+  let readerSearchQuery = $state('');
   let readerChapterIndex = $state(0);
   let readerChapterTitle = $state('');
   let readerOriginalHtml = $state('');
   let readerTranslatedHtml = $state('');
   let readerIsTranslated = $state(false);
   let isLoadingChapter = $state(false);
+  let readerViewMode = $state<'translated' | 'side-by-side' | 'original'>('translated');
+  let readerFontFamily = $state<'serif' | 'sans' | 'mono'>('serif');
+  let readerFontSize = $state(18);
+  let readerLineHeight = $state('1.75');
+  let readerMaxWidth = $state<'compact' | 'normal' | 'wide'>('normal');
+  let readerTextAlign = $state<'left' | 'justify'>('left');
+  let readerIndent = $state(true);
+  let readerIsFullscreen = $state(false);
 
-  // Reader Settings
-  let readerFontSize = $state(18); // px
-  let readerLineHeight = $state('1.8');
-  let readerTheme = $state<'light' | 'sepia' | 'dark'>('sepia');
-  let readerViewMode = $state<'translated' | 'side-by-side'>('translated');
-
-  function formatBytes(bytes: number): string {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  function setReaderFont(font: 'serif' | 'sans' | 'mono') {
+    readerFontFamily = font;
+    localStorage.setItem('linguabook_reader_font', font);
   }
 
-  function formatNumber(num: number): string {
-    return new Intl.NumberFormat().format(num);
+  function adjustFontSize(delta: number) {
+    readerFontSize = Math.min(28, Math.max(14, readerFontSize + delta));
+    localStorage.setItem('linguabook_reader_size', readerFontSize.toString());
   }
 
-  // --- Upload Handler ---
-  async function handleFileInput(e: Event) {
-    const target = e.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
-      await uploadFile(target.files[0]);
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      readerIsFullscreen = true;
+    } else {
+      document.exitFullscreen().catch(() => {});
+      readerIsFullscreen = false;
     }
   }
 
-  function handleDrop(e: DragEvent) {
-    e.preventDefault();
-    isDragging = false;
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-      uploadFile(e.dataTransfer.files[0]);
-    }
-  }
-
-  async function uploadFile(file: File) {
-    uploadError = null;
+  // --- File Upload Handler ---
+  async function handleFileUpload(file: File) {
+    if (!file) return;
 
     if (!file.name.toLowerCase().endsWith('.epub')) {
-      uploadError = 'Please select a valid .epub ebook file.';
+      uploadError = 'File harus berformat .epub yang valid.';
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      uploadError = 'File size exceeds 50 MB limit.';
+      uploadError = 'Ukuran file melebihi batas maksimal 50 MB.';
       return;
     }
 
+    uploadError = null;
     isUploading = true;
-    const formData = new FormData();
-    formData.append('file', file);
 
     try {
+      const formData = new FormData();
+      formData.append('epub', file);
+
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -248,37 +240,69 @@
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to upload and parse EPUB.');
+        throw new Error(data.error || 'Gagal memproses file EPUB.');
       }
 
+      // Initialize session data
       sessionId = data.sessionId;
       filename = data.filename;
       fileSizeBytes = data.fileSizeBytes;
-      bookTitle = data.metadata.title;
-      bookAuthor = data.metadata.creator;
-      bookLanguage = data.metadata.language;
-      bookCoverBase64 = data.metadata.coverBase64 || null;
-      totalWords = data.totalWords;
-      totalBatches = data.totalBatches;
-      totalChapters = data.totalChapters;
-      chaptersList = data.chapters;
+      bookTitle = data.title || 'Untitled Book';
+      bookAuthor = data.author || 'Unknown Author';
+      bookLanguage = data.language || 'en';
+      bookCoverBase64 = data.coverBase64;
+      totalWords = data.totalWords || 0;
+      totalBatches = data.totalBatches || 0;
+      totalChapters = data.totalChapters || 0;
+      chaptersList = data.chapters || [];
 
       appState = 'overview';
     } catch (err: any) {
-      uploadError = err.message || 'An error occurred while reading the EPUB.';
+      console.error('Upload error:', err);
+      uploadError = err.message || 'Terjadi kesalahan saat mengunggah EPUB.';
     } finally {
       isUploading = false;
     }
   }
 
-  // --- Start Translation ---
-  async function startTranslation() {
+  function onFileInputChange(e: Event) {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+      handleFileUpload(target.files[0]);
+    }
+  }
+
+  function onDragOver(e: DragEvent) {
+    e.preventDefault();
+    isDragging = true;
+  }
+
+  function onDragLeave() {
+    isDragging = false;
+  }
+
+  function onDrop(e: DragEvent) {
+    e.preventDefault();
+    isDragging = false;
+    if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
+  }
+
+  // --- Translation Controls ---
+  async function handleStartTranslation() {
     if (!sessionId) return;
 
-    const customKey = localStorage.getItem('linguabook_custom_api_key') || undefined;
-    const customModel = selectedModel || localStorage.getItem('linguabook_custom_model') || 'gemini-3.8-flash';
-
     try {
+      appState = 'translating';
+      progressPercent = 0;
+      completedChaptersCount = 0;
+      completedBatchesTotal = 0;
+      progressMessage = 'Menyiapkan antrean penerjemahan...';
+
+      const customKey = localStorage.getItem('linguabook_custom_api_key') || undefined;
+      const customModel = localStorage.getItem('linguabook_custom_model') || selectedModel;
+
       const res = await fetch('/api/translate/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -290,24 +314,23 @@
         })
       });
 
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to start translation.');
+        const data = await res.json();
+        throw new Error(data.error || 'Gagal memulai terjemahan');
       }
 
-      appState = 'translating';
       listenToProgress();
     } catch (err: any) {
-      alert(err.message || 'Failed to start translation.');
+      console.error('Start translation error:', err);
+      alert(`Gagal memulai: ${err.message}`);
+      appState = 'overview';
     }
   }
 
-  // --- SSE & Polling Progress Listener ---
   function listenToProgress() {
     if (!sessionId) return;
     cleanupProgressListeners();
 
-    // Use Server-Sent Events (SSE)
     if (typeof EventSource !== 'undefined') {
       eventSource = new EventSource(`/api/translate/status?sessionId=${sessionId}`);
 
@@ -321,7 +344,6 @@
       };
 
       eventSource.onerror = () => {
-        // If SSE fails or drops, start fallback polling
         cleanupProgressListeners();
         startPollingFallback();
       };
@@ -376,7 +398,6 @@
     }
   }
 
-  // --- Cancel Translation ---
   async function cancelCurrentTranslation() {
     if (!sessionId || isCancelling) return;
     isCancelling = true;
@@ -387,7 +408,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId })
       });
-      progressMessage = 'Translation cancelled.';
+      progressMessage = 'Terjemahan dibatalkan oleh pengguna.';
     } catch (e) {
       console.error(e);
     } finally {
@@ -396,7 +417,7 @@
   }
 
   function formatBatchError(errorText: string): string {
-    if (!errorText) return 'Terjadi kesalahan jaringan atau server.';
+    if (!errorText) return 'Terjadi kendala jaringan atau server.';
     try {
       const parsed = JSON.parse(errorText);
       if (parsed?.error?.message) {
@@ -405,15 +426,14 @@
     } catch {}
 
     if (errorText.includes('503') || errorText.includes('high demand') || errorText.includes('UNAVAILABLE')) {
-      return '⚠️ Server Google sedang sibuk (503 High Demand). Silakan klik Retry (sistem otomatis beralih ke model stabil).';
+      return 'Server Google sedang mengalami lonjakan beban (503). Sistem otomatis melakukan rotasi model.';
     }
     if (errorText.includes('429') || errorText.includes('RESOURCE_EXHAUSTED') || errorText.includes('quota')) {
-      return '⏳ Batas kuota request per menit terlampaui (429 Rate Limit). Tunggu sebentar lalu klik Retry.';
+      return 'Batas request per menit terlampaui (429). Sistem sedang menyesuaikan pacing antrean.';
     }
     return errorText;
   }
 
-  // --- Retry Failed Batch ---
   async function handleRetryBatch(chapterIndex: number, batchIndex: number) {
     if (!sessionId || isRetryingBatch) return;
     isRetryingBatch = true;
@@ -435,14 +455,13 @@
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Retry failed');
+      if (!res.ok) throw new Error(data.error || 'Retry gagal');
 
-      // Refresh status
       failedBatches = failedBatches.filter(
         (b) => !(b.chapterIndex === chapterIndex && b.batchIndex === batchIndex)
       );
     } catch (err: any) {
-      alert(`Retry failed: ${formatBatchError(err.message)}`);
+      alert(`Retry gagal: ${formatBatchError(err.message)}`);
     } finally {
       isRetryingBatch = false;
     }
@@ -481,13 +500,14 @@
     for (const fb of toRetry) {
       await handleRetryBatch(fb.chapterIndex, fb.batchIndex);
     }
-    // Automatically resume remaining pending chapters in the queue
     await resumeTranslation();
   }
 
-  // --- Reader Preview ---
+  // --- Reader Functions ---
   async function openReader(initialChapterIndex: number = 0) {
     showReader = true;
+    showTocSidebar = false;
+    showTypeSettings = false;
     await loadChapterContent(initialChapterIndex);
   }
 
@@ -498,12 +518,16 @@
 
     try {
       const res = await fetch(`/api/preview?sessionId=${sessionId}&chapterIndex=${chapterIndex}`);
-      if (!res.ok) throw new Error('Failed to load chapter');
+      if (!res.ok) throw new Error('Gagal memuat isi bab');
       const data = await res.json();
       readerChapterTitle = data.title;
       readerOriginalHtml = data.originalHtml;
       readerTranslatedHtml = data.translatedHtml;
       readerIsTranslated = data.isTranslated;
+
+      // Scroll reader canvas to top
+      const canvas = document.getElementById('reader-scroll-canvas');
+      if (canvas) canvas.scrollTop = 0;
     } catch (err) {
       console.error('Error loading chapter preview:', err);
     } finally {
@@ -523,6 +547,31 @@
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (!showReader) return;
+    // Don't trigger if user is typing in search or inputs
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+      return;
+    }
+
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prevChapter();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextChapter();
+    } else if (e.key === 'Escape') {
+      if (showTypeSettings) {
+        showTypeSettings = false;
+      } else if (showTocSidebar) {
+        showTocSidebar = false;
+      } else {
+        showReader = false;
+      }
+    }
+  }
+
   function downloadEpub() {
     if (!sessionId) return;
     window.location.href = `/api/download?sessionId=${sessionId}`;
@@ -534,6 +583,7 @@
     sessionId = null;
     uploadError = null;
     failedBatches = [];
+    showReader = false;
   }
 
   onDestroy(() => {
@@ -541,370 +591,316 @@
   });
 </script>
 
-<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
+<svelte:window onkeydown={handleKeydown} />
 
-  <!-- ================= STATE 1: UPLOAD AREA ================= -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 flex flex-col justify-center">
+
+  <!-- ================= STATE 1: UPLOAD SCREEN ================= -->
   {#if appState === 'upload'}
-    <div class="max-w-2xl mx-auto text-center space-y-6">
-      <div class="space-y-2">
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          Translate EPUB to Natural Indonesian
+    <div class="space-y-12 animate-in fade-in duration-200">
+      <!-- Minimalist Hero Header -->
+      <div class="text-center max-w-2xl mx-auto space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-200 bg-white text-zinc-900 text-xs font-mono shadow-sm">
+          <span>EPUB 3.0+ & EPUB 2.0 Engine</span>
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-950">
+          Penerjemah & Pembaca EPUB
         </h1>
-        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400">
-          Upload any English <code class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-sm font-semibold">.epub</code> book. LinguaBook translates chapter-by-chapter while preserving 100% of formatting, typography, images, and styling.
+        <p class="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
+          Terjemahkan buku digital berbahasa Inggris ke Bahasa Indonesia dengan gaya sastra alami. Format, gambar, CSS, dan struktur buku 100% utuh.
         </p>
       </div>
 
-      <!-- Drag and Drop Dropzone -->
-      <div
-        role="region"
-        aria-label="EPUB File Upload Dropzone"
-        ondragover={(e) => { e.preventDefault(); isDragging = true; }}
-        ondragleave={() => isDragging = false}
-        ondrop={handleDrop}
-        class="relative border-2 border-dashed rounded-3xl p-8 sm:p-12 transition-all duration-200 text-center {
-          isDragging
-            ? 'border-orange-500 bg-orange-50/60 dark:bg-orange-950/20 scale-[1.01]'
-            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 hover:border-orange-400 hover:bg-slate-50/50 dark:hover:bg-slate-900'
-        } shadow-sm shadow-slate-200/50 dark:shadow-none"
-      >
-        <input
-          id="file-upload"
-          type="file"
-          accept=".epub,application/epub+zip"
-          onchange={handleFileInput}
-          class="hidden"
-          disabled={isUploading}
-        />
+      <!-- Monochrome Dropzone -->
+      <div class="max-w-xl mx-auto">
+        <button
+          type="button"
+          aria-label="EPUB File Drop Area"
+          class="w-full relative border-2 border-dashed rounded-3xl p-8 sm:p-14 text-center transition-all cursor-pointer bg-white shadow-sm {
+            isDragging
+              ? 'border-zinc-950 bg-zinc-50 scale-[1.01]'
+              : 'border-zinc-300 hover:border-zinc-900 hover:bg-zinc-50/50'
+          }"
+          ondragover={onDragOver}
+          ondragleave={onDragLeave}
+          ondrop={onDrop}
+          onclick={() => document.getElementById('epub-file-input')?.click()}
+        >
+          <input
+            id="epub-file-input"
+            type="file"
+            accept=".epub,application/epub+zip"
+            class="hidden"
+            onchange={onFileInputChange}
+          />
 
-        {#if isUploading}
-          <div class="flex flex-col items-center justify-center space-y-4 py-4">
-            <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 flex items-center justify-center animate-spin">
-              <RefreshCw class="w-7 h-7" />
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-zinc-100 border border-zinc-200 text-zinc-900 flex items-center justify-center transition-transform group-hover:scale-110">
+              {#if isUploading}
+                <RefreshCw class="w-7 h-7 text-zinc-900 animate-spin" />
+              {:else}
+                <UploadCloud class="w-7 h-7 text-zinc-900" />
+              {/if}
             </div>
+
             <div class="space-y-1">
-              <p class="font-semibold text-slate-900 dark:text-white text-base">Reading and analyzing EPUB...</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Extracting chapters, metadata, and calculating batches</p>
+              <p class="text-base font-semibold text-zinc-900">
+                {isUploading ? 'Memproses dan membaca struktur buku...' : 'Tarik & lepas file .epub ke sini'}
+              </p>
+              <p class="text-xs text-zinc-500">
+                atau <span class="text-zinc-950 font-semibold underline underline-offset-4">pilih file dari perangkat</span>
+              </p>
+            </div>
+
+            <div class="pt-2 flex items-center gap-3 text-xs text-zinc-400 font-mono">
+              <span>Hanya format .epub</span>
+              <span>•</span>
+              <span>Maksimal 50 MB</span>
             </div>
           </div>
-        {:else}
-          <label for="file-upload" class="cursor-pointer flex flex-col items-center justify-center space-y-4 py-2">
-            <div class="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center border border-orange-100 dark:border-orange-900/50 group-hover:scale-105 transition-transform">
-              <UploadCloud class="w-8 h-8" />
-            </div>
+        </button>
 
-            <div class="space-y-1">
-              <p class="text-lg font-semibold text-slate-900 dark:text-white">
-                Drop your EPUB here
-              </p>
-              <p class="text-sm text-slate-500 dark:text-slate-400">
-                or <span class="text-orange-600 dark:text-orange-400 font-medium hover:underline">Choose EPUB file</span> from your computer
-              </p>
-            </div>
-
-            <div class="flex items-center gap-2 pt-2 text-xs text-slate-400 dark:text-slate-500">
-              <span>Supports EPUB 2 & EPUB 3</span>
-              <span>•</span>
-              <span>Max 50 MB</span>
-            </div>
-          </label>
+        <!-- Upload Error Notice -->
+        {#if uploadError}
+          <div class="mt-4 p-4 rounded-2xl bg-zinc-100 border border-zinc-300 text-zinc-900 text-xs flex items-center gap-2.5">
+            <AlertCircle class="w-4 h-4 text-zinc-900 shrink-0" />
+            <p>{uploadError}</p>
+          </div>
         {/if}
       </div>
 
-      <!-- Error alert -->
-      {#if uploadError}
-        <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-sm text-rose-700 dark:text-rose-300 flex items-center gap-3 text-left">
-          <AlertCircle class="w-5 h-5 shrink-0 text-rose-500" />
-          <p>{uploadError}</p>
-        </div>
-      {/if}
-
-      <!-- Feature Highlights -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 text-left">
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2.5">
-            <Sparkles class="w-4 h-4" />
+      <!-- Feature Badges (3-Column Minimal Grid) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto pt-4">
+        <div class="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-2">
+          <div class="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-900 font-bold text-xs">
+            1
           </div>
-          <h4 class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Literary Quality</h4>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Natural Indonesian prose tailored for novels, dialogue, character voice, and nuances.</p>
+          <h3 class="font-bold text-sm text-zinc-900">100% Struktur Utuh</h3>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Format HTML, tag inline (&lt;em&gt;, &lt;b&gt;, &lt;a&gt;), CSS layout, dan gambar tersimpan presisi sesuai standar EPUB 3.
+          </p>
         </div>
 
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-2.5">
-            <Layers class="w-4 h-4" />
+        <div class="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-2">
+          <div class="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-900 font-bold text-xs">
+            2
           </div>
-          <h4 class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Preserve Structure</h4>
-          <p class="text-xs text-slate-500 dark:text-slate-400">HTML tags, CSS styles, images, font styling, and metadata are 100% preserved.</p>
+          <h3 class="font-bold text-sm text-zinc-900">Diksi Sastra Alami</h3>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Didukung prompt sastra Gemini teruji untuk dialog novel yang hidup, luwes, dan tidak kaku seperti mesin terjemahan biasa.
+          </p>
         </div>
 
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2.5">
-            <BookOpen class="w-4 h-4" />
+        <div class="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-2">
+          <div class="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-900 font-bold text-xs">
+            3
           </div>
-          <h4 class="font-semibold text-sm text-slate-900 dark:text-white mb-1">Calibre & ReadEra Ready</h4>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Repackaged strictly following EPUB standards with uncompressed mimetype.</p>
+          <h3 class="font-bold text-sm text-zinc-900">Pembaca Buku Terintegrasi</h3>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Baca buku langsung di web dengan reader monokrom yang nyaman, lengkap dengan mode perbandingan berdampingan (bilingual).
+          </p>
         </div>
       </div>
     </div>
   {/if}
 
-  <!-- ================= STATE 2: BOOK OVERVIEW & CONFIG ================= -->
+  <!-- ================= STATE 2: BOOK OVERVIEW ================= -->
   {#if appState === 'overview'}
-    <div class="space-y-6 animate-in fade-in duration-300">
-      <div class="flex items-center justify-between">
-        <div>
-          <span class="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider">Book Detected</span>
-          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Ready for Translation</h2>
-        </div>
-        <button
-          onclick={resetToUpload}
-          class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline"
-        >
-          Choose another file
-        </button>
-      </div>
-
-      <!-- Book Card -->
-      <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-        <!-- Book Cover Preview -->
-        <div class="w-36 sm:w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 shrink-0 flex items-center justify-center relative group">
+    <div class="max-w-3xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+      <!-- Book Identity Card -->
+      <div class="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row gap-6 items-start">
+          <!-- Cover Art -->
           {#if bookCoverBase64}
-            <img src={bookCoverBase64} alt={bookTitle} class="w-full h-full object-cover" />
+            <img
+              src={bookCoverBase64}
+              alt="Cover Buku {bookTitle}"
+              class="w-32 h-44 object-cover rounded-2xl shadow-md border border-zinc-200 shrink-0 mx-auto sm:mx-0"
+            />
           {:else}
-            <div class="p-4 text-center flex flex-col items-center justify-center space-y-2 text-slate-400 dark:text-slate-500">
-              <BookOpen class="w-10 h-10 stroke-[1.5]" />
-              <span class="text-xs font-medium leading-tight line-clamp-3">{bookTitle}</span>
+            <div class="w-32 h-44 rounded-2xl bg-zinc-100 border border-zinc-200 flex flex-col items-center justify-center text-zinc-400 shrink-0 mx-auto sm:mx-0">
+              <BookOpen class="w-8 h-8 mb-2 text-zinc-400" />
+              <span class="text-[10px] uppercase font-mono">Tanpa Sampul</span>
             </div>
           {/if}
+
+          <!-- Book Metadata -->
+          <div class="flex-1 space-y-3 text-center sm:text-left">
+            <div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-zinc-100 text-zinc-800 border border-zinc-300 mb-1.5">
+                Buku Terdeteksi
+              </span>
+              <h2 class="text-2xl font-bold text-zinc-950 leading-tight">{bookTitle}</h2>
+              <p class="text-sm text-zinc-500 mt-0.5">Penulis: <span class="font-medium text-zinc-800">{bookAuthor}</span></p>
+            </div>
+
+            <!-- Stats Pills -->
+            <div class="flex flex-wrap gap-2 justify-center sm:justify-start pt-1 text-xs font-mono">
+              <span class="px-3 py-1 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700">
+                📖 {totalChapters} Bab
+              </span>
+              <span class="px-3 py-1 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700">
+                📝 ±{totalWords.toLocaleString()} Kata
+              </span>
+              <span class="px-3 py-1 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700">
+                📦 {totalBatches} Batch
+              </span>
+            </div>
+          </div>
         </div>
 
-        <!-- Book Details & Options -->
-        <div class="flex-1 space-y-5 w-full">
-          <div>
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{bookTitle}</h3>
-            <p class="text-base text-slate-600 dark:text-slate-400 mt-1 font-medium">{bookAuthor}</p>
+        <hr class="border-zinc-200" />
+
+        <!-- Style Selection -->
+        <div class="space-y-3">
+          <span class="block text-xs font-bold text-zinc-900 uppercase tracking-wider">
+            Gaya Penerjemahan
+          </span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {#each [
+              { id: 'literary', name: 'Sastra & Novel', desc: 'Diksi kaya & dialog hidup' },
+              { id: 'nonfiction', name: 'Non-Fiksi', desc: 'Jelas & persuasif' },
+              { id: 'academic', name: 'Akademik', desc: 'Baku sesuai PUEBI' },
+              { id: 'technical', name: 'Teknis', desc: 'Terminologi presisi' }
+            ] as styleOpt}
+              <button
+                type="button"
+                onclick={() => selectedStyle = styleOpt.id as TranslationStyle}
+                class="p-3 rounded-2xl text-left border transition-all text-xs {
+                  selectedStyle === styleOpt.id
+                    ? 'border-zinc-950 bg-zinc-950 text-white shadow-sm'
+                    : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400'
+                }"
+              >
+                <div class="font-bold">{styleOpt.name}</div>
+                <div class="text-[11px] mt-0.5 opacity-80">{styleOpt.desc}</div>
+              </button>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Model Selection -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="block text-xs font-bold text-zinc-900 uppercase tracking-wider">
+              Mesin Model Gemini
+            </span>
+            <div class="flex items-center gap-1 bg-zinc-100 p-0.5 rounded-xl text-[11px] font-mono border border-zinc-200">
+              <button
+                type="button"
+                onclick={() => modelCategoryFilter = 'all'}
+                class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'all' ? 'bg-white text-zinc-950 shadow-sm font-bold' : 'text-zinc-500 hover:text-zinc-800'}"
+              >
+                Semua ({availableModelOptions.length})
+              </button>
+              <button
+                type="button"
+                onclick={() => modelCategoryFilter = 'efficiency'}
+                class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'efficiency' ? 'bg-white text-zinc-950 shadow-sm font-bold' : 'text-zinc-500 hover:text-zinc-800'}"
+              >
+                Super Kuota (1.000 / 500 RPD)
+              </button>
+              <button
+                type="button"
+                onclick={() => modelCategoryFilter = 'frontier'}
+                class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'frontier' ? 'bg-white text-zinc-950 shadow-sm font-bold' : 'text-zinc-500 hover:text-zinc-800'}"
+              >
+                Frontier (20 RPD)
+              </button>
+            </div>
           </div>
 
-          <!-- Metadata Badges -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Chapters</span>
-              <span class="text-base font-bold text-slate-900 dark:text-white">{totalChapters} chapters</span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Estimated Text</span>
-              <span class="text-base font-bold text-slate-900 dark:text-white">~{formatNumber(totalWords)} words</span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Translation Batches</span>
-              <span class="text-base font-bold text-slate-900 dark:text-white">{totalBatches} batches</span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Direction</span>
-              <span class="text-base font-bold text-orange-600 dark:text-orange-400">English → ID</span>
-            </div>
-          </div>
-
-          <!-- AI Model Selector (Pilih Kualitas Model) -->
-          <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Model Gemini (Pilihan Kualitas & Kuota)
-                </span>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                  Model terpilih: <strong class="text-orange-600 dark:text-orange-400">{selectedModel}</strong>
-                </span>
-              </div>
-
-              <!-- Category filter tabs -->
-              <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-[11px] font-semibold">
-                <button
-                  type="button"
-                  onclick={() => modelCategoryFilter = 'all'}
-                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'all' ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
-                >
-                  Semua ({availableModelOptions.length})
-                </button>
-                <button
-                  type="button"
-                  onclick={() => modelCategoryFilter = 'efficiency'}
-                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'efficiency' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
-                >
-                  🌟 Kuota 500 RPD
-                </button>
-                <button
-                  type="button"
-                  onclick={() => modelCategoryFilter = 'frontier'}
-                  class="px-2.5 py-1 rounded-lg transition-all {modelCategoryFilter === 'frontier' ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}"
-                >
-                  👑 Frontier (20 RPD)
-                </button>
-              </div>
-            </div>
-
-            <!-- Model Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
-              {#each availableModelOptions.filter(m => modelCategoryFilter === 'all' || m.category === modelCategoryFilter) as opt}
-                <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                  selectedModel === opt.id
-                    ? opt.borderActive + ' ring-1 ' + opt.ringActive
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white/50 dark:bg-slate-800/40'
-                }">
-                  <input
-                    type="radio"
-                    name="model"
-                    value={opt.id}
-                    bind:group={selectedModel}
-                    onchange={() => setModel(opt.id)}
-                    class="mt-1"
-                  />
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">{opt.name}</span>
-                      <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold border {opt.badgeStyle}">
-                        {opt.badge}
-                      </span>
-                    </div>
-                    <span class="text-[11px] text-slate-600 dark:text-slate-300 block mt-1 leading-snug">
-                      {opt.description}
-                    </span>
-                    <span class="inline-block mt-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                      {opt.usageNote}
+          <!-- Model Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+            {#each availableModelOptions.filter(m => modelCategoryFilter === 'all' || m.category === modelCategoryFilter) as opt}
+              <label class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all {
+                selectedModel === opt.id
+                  ? 'border-zinc-950 ring-2 ring-zinc-950 bg-zinc-50'
+                  : 'border-zinc-200 hover:border-zinc-400 bg-white'
+              }">
+                <input
+                  type="radio"
+                  name="model"
+                  value={opt.id}
+                  bind:group={selectedModel}
+                  onchange={() => setModel(opt.id)}
+                  class="mt-1 accent-zinc-950"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-bold text-xs text-zinc-900">{opt.name}</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full border border-zinc-300 bg-white text-zinc-800">
+                      {opt.badge}
                     </span>
                   </div>
-                </label>
-              {/each}
-            </div>
-          </div>
-
-          <!-- Translation Style Selector -->
-          <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Gaya Terjemahan (Translation Style)
-            </span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedStyle === 'literary'
-                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/30'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input type="radio" name="style" value="literary" bind:group={selectedStyle} class="mt-0.5 text-orange-600" />
-                <div>
-                  <span class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white block">Natural / Literary (Default)</span>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">Best for novels and fiction. Natural Indonesian phrasing and dialogue voice.</span>
+                  <p class="text-[11px] text-zinc-500 mt-1 leading-snug">{opt.description}</p>
+                  <p class="text-[10px] font-mono text-zinc-600 mt-1">{opt.usageNote}</p>
                 </div>
               </label>
-
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedStyle === 'nonfiction'
-                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/30'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input type="radio" name="style" value="nonfiction" bind:group={selectedStyle} class="mt-0.5 text-orange-600" />
-                <div>
-                  <span class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white block">Non-Fiction</span>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">Clear, structured for essays, self-help, biographies, and articles.</span>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedStyle === 'academic'
-                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/30'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input type="radio" name="style" value="academic" bind:group={selectedStyle} class="mt-0.5 text-orange-600" />
-                <div>
-                  <span class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white block">Academic</span>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">Formal standard Indonesian (PUEBI), preserves scholarly citations and terms.</span>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all {
-                selectedStyle === 'technical'
-                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/30'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }">
-                <input type="radio" name="style" value="technical" bind:group={selectedStyle} class="mt-0.5 text-orange-600" />
-                <div>
-                  <span class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white block">Technical</span>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">Precise terminology, preserves code keywords and parameters.</span>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Cost Protection Advisory -->
-          <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
-            <AlertCircle class="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
-            <div>
-              <p class="font-semibold">Cost & Quota Protection</p>
-              <p class="mt-0.5 opacity-90">
-                This book will be translated across {totalBatches} batches (~{formatNumber(totalWords)} words). Large books consume Gemini API token quota. You can cancel at any time.
-              </p>
-            </div>
-          </div>
-
-          <!-- Start Button -->
-          <div class="pt-2 flex items-center gap-3">
-            <button
-              onclick={startTranslation}
-              class="flex-1 px-6 py-3.5 rounded-2xl font-bold text-white bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 text-base transition-all transform hover:scale-[1.01] active:scale-[0.99]"
-            >
-              <Play class="w-5 h-5 fill-current" />
-              <span>Start Translation</span>
-            </button>
+            {/each}
           </div>
         </div>
-      </div>
 
-      <!-- Chapter Outline -->
-      <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-        <h4 class="font-bold text-base text-slate-900 dark:text-white mb-3">Detected Chapters ({chaptersList.length})</h4>
-        <div class="divide-y divide-slate-100 dark:divide-slate-800 max-h-64 overflow-y-auto pr-2 text-xs">
-          {#each chaptersList as ch}
-            <div class="py-2 flex items-center justify-between">
-              <span class="font-medium text-slate-800 dark:text-slate-200 truncate max-w-md">{ch.title}</span>
-              <div class="flex items-center gap-4 text-slate-400 shrink-0">
-                <span>{formatNumber(ch.wordCount)} words</span>
-                <span>{ch.batchesCount} batches</span>
-              </div>
-            </div>
-          {/each}
+        <!-- Action Buttons -->
+        <div class="pt-4 flex flex-col sm:flex-row items-center gap-3">
+          <button
+            onclick={handleStartTranslation}
+            class="w-full sm:flex-1 py-3.5 px-6 rounded-2xl font-bold text-white bg-zinc-950 hover:bg-zinc-800 shadow-sm flex items-center justify-center gap-2 text-sm transition-all"
+          >
+            <Play class="w-4 h-4 fill-current" />
+            <span>Mulai Terjemahan</span>
+          </button>
+
+          <button
+            onclick={() => openReader(0)}
+            class="w-full sm:w-auto py-3.5 px-5 rounded-2xl font-semibold text-zinc-800 bg-white border border-zinc-300 hover:bg-zinc-100 flex items-center justify-center gap-2 text-sm transition-all"
+            title="Buka pembaca untuk membaca langsung bab asli sebelum atau tanpa terjemahan"
+          >
+            <BookOpen class="w-4 h-4" />
+            <span>Baca EPUB Ini Sekarang</span>
+          </button>
+
+          <button
+            onclick={resetToUpload}
+            class="text-xs text-zinc-400 hover:text-zinc-700 underline underline-offset-4 px-2"
+          >
+            Ganti Buku
+          </button>
         </div>
       </div>
     </div>
   {/if}
 
-  <!-- ================= STATE 3: LIVE TRANSLATION DASHBOARD ================= -->
+  <!-- ================= STATE 3: LIVE TRANSLATING ================= -->
   {#if appState === 'translating'}
-    <div class="space-y-6 animate-in fade-in duration-300">
-      <!-- Dashboard Card -->
-      <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+    <div class="max-w-3xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+      <div class="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+        <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             {#if translationQueueStatus === 'error'}
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 mb-1">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-300 mb-1">
                 <AlertCircle class="w-3.5 h-3.5" />
-                Antrean Dijeda
+                Antrean Dijeda (Perlu Aksi)
               </span>
             {:else}
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 mb-1">
-                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                Translating in progress
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-300 mb-1">
+                <span class="w-2 h-2 rounded-full bg-zinc-900 animate-pulse"></span>
+                Penerjemahan Sedang Berjalan
               </span>
             {/if}
-            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Translating your book...</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">{bookTitle} by {bookAuthor}</p>
+            <h2 class="text-2xl font-bold text-zinc-950">Menerjemahkan Buku...</h2>
+            <p class="text-xs text-zinc-500">{bookTitle} oleh {bookAuthor}</p>
           </div>
 
-          <div class="flex items-center gap-2">
+          <!-- Controls in Translate Header -->
+          <div class="flex items-center gap-2 flex-wrap">
             {#if translationQueueStatus === 'error'}
               <button
                 onclick={resumeTranslation}
-                class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-colors shadow-sm"
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-950 hover:bg-zinc-800 text-white flex items-center gap-1.5 transition-colors shadow-sm"
               >
-                <Play class="w-4 h-4 fill-current" />
+                <Play class="w-3.5 h-3.5 fill-current" />
                 <span>Lanjutkan Antrean</span>
               </button>
             {/if}
@@ -912,78 +908,78 @@
             {#if completedChaptersCount > 0}
               <button
                 onclick={() => openReader(0)}
-                class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5 transition-colors"
+                class="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-200 hover:bg-zinc-200 flex items-center gap-1.5 transition-colors"
               >
-                <Eye class="w-4 h-4" />
-                <span>Read Completed ({completedChaptersCount})</span>
+                <BookOpen class="w-3.5 h-3.5" />
+                <span>Baca Bab Selesai ({completedChaptersCount})</span>
               </button>
             {/if}
 
             <button
               onclick={cancelCurrentTranslation}
               disabled={isCancelling}
-              class="px-4 py-2 rounded-xl text-xs font-semibold border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+              class="px-4 py-2 rounded-xl text-xs font-semibold border border-zinc-300 text-zinc-700 hover:bg-zinc-100 transition-colors"
             >
-              {isCancelling ? 'Stopping...' : 'Cancel Translation'}
+              {isCancelling ? 'Menghentikan...' : 'Batalkan'}
             </button>
           </div>
         </div>
 
-        <!-- Big Progress Bar -->
+        <!-- Big Minimalist Progress Bar -->
         <div class="space-y-2">
-          <div class="flex items-baseline justify-between">
-            <span class="text-4xl font-extrabold text-orange-600 dark:text-orange-400">{progressPercent}%</span>
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Chapter {currentChapterIndex + 1} of {totalChapters}
+          <div class="flex items-baseline justify-between font-mono">
+            <span class="text-4xl font-extrabold text-zinc-950">{progressPercent}%</span>
+            <span class="text-xs text-zinc-500">
+              Bab {currentChapterIndex + 1} dari {totalChapters}
             </span>
           </div>
-          <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+          <div class="w-full h-3 bg-zinc-100 rounded-full overflow-hidden p-0.5 border border-zinc-200">
             <div
-              class="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-500"
+              class="h-full bg-zinc-950 rounded-full transition-all duration-300"
               style="width: {progressPercent}%;"
             ></div>
           </div>
         </div>
 
-        <!-- Progress Metrics -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-            <span class="text-slate-400 block font-medium">Current Chapter</span>
-            <span class="font-bold text-slate-800 dark:text-slate-200 truncate block mt-0.5">
-              {currentChapterTitle || `Chapter ${currentChapterIndex + 1}`}
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+          <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200">
+            <span class="text-zinc-400 block font-sans">Bab Berjalan</span>
+            <span class="font-bold text-zinc-900 truncate block mt-0.5">
+              {currentChapterTitle || `Bab ${currentChapterIndex + 1}`}
             </span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-            <span class="text-slate-400 block font-medium">Chapter Batches</span>
-            <span class="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-              Batch {currentBatchIndex + 1} / {totalBatchesInChapter || 1}
+          <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200">
+            <span class="text-zinc-400 block font-sans">Batch Bab</span>
+            <span class="font-bold text-zinc-900 block mt-0.5">
+              {currentBatchIndex + 1} / {totalBatchesInChapter || 1}
             </span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-            <span class="text-slate-400 block font-medium">Completed</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400 block mt-0.5">
-              {completedChaptersCount} chapters
+          <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200">
+            <span class="text-zinc-400 block font-sans">Bab Selesai</span>
+            <span class="font-bold text-zinc-900 block mt-0.5">
+              {completedChaptersCount} Bab
             </span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-            <span class="text-slate-400 block font-medium">Remaining</span>
-            <span class="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-              {Math.max(0, totalChapters - completedChaptersCount)} chapters
+          <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200">
+            <span class="text-zinc-400 block font-sans">Sisa Bab</span>
+            <span class="font-bold text-zinc-900 block mt-0.5">
+              {Math.max(0, totalChapters - completedChaptersCount)} Bab
             </span>
           </div>
         </div>
 
         <!-- Live Activity Message -->
-        <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-          <RefreshCw class="w-4 h-4 text-orange-500 animate-spin shrink-0" />
-          <span class="font-mono">{progressMessage}</span>
+        <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center gap-2.5 text-xs text-zinc-700">
+          <RefreshCw class="w-3.5 h-3.5 text-zinc-900 animate-spin shrink-0" />
+          <span class="font-mono truncate">{progressMessage}</span>
         </div>
 
-        <!-- Failed Batches & Retry UI -->
+        <!-- Failed Batches Notice -->
         {#if failedBatches.length > 0}
-          <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 space-y-3">
+          <div class="p-4 rounded-2xl bg-zinc-100 border border-zinc-300 space-y-3">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-xs">
+              <div class="flex items-center gap-2 text-zinc-900 font-bold text-xs">
                 <AlertCircle class="w-4 h-4" />
                 <span>Batch Tertunda ({failedBatches.length})</span>
               </div>
@@ -991,7 +987,7 @@
                 <button
                   onclick={retryAllFailedBatches}
                   disabled={isRetryingBatch}
-                  class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs flex items-center gap-1 transition-all shadow-sm"
+                  class="px-3 py-1 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-medium text-xs flex items-center gap-1 transition-all"
                 >
                   <RefreshCw class="w-3 h-3 {isRetryingBatch ? 'animate-spin' : ''}" />
                   <span>Retry Semua ({failedBatches.length})</span>
@@ -1000,19 +996,19 @@
             </div>
             <div class="space-y-2">
               {#each failedBatches as fb}
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-950 text-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-white border border-zinc-200 text-xs">
                   <div class="flex-1 min-w-0 pr-2">
-                    <span class="font-semibold text-slate-900 dark:text-white">Chapter {fb.chapterIndex + 1}, Batch {fb.batchIndex + 1}</span>
-                    <span class="text-rose-600 dark:text-rose-400 block text-[11px] mt-0.5 leading-snug">
+                    <span class="font-semibold text-zinc-900">Bab {fb.chapterIndex + 1}, Batch {fb.batchIndex + 1}</span>
+                    <span class="text-zinc-500 block text-[11px] mt-0.5">
                       {formatBatchError(fb.error)}
                     </span>
                   </div>
                   <button
                     onclick={() => handleRetryBatch(fb.chapterIndex, fb.batchIndex)}
                     disabled={isRetryingBatch}
-                    class="self-start sm:self-center shrink-0 px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium flex items-center gap-1.5 transition-colors shadow-sm text-xs"
+                    class="self-start sm:self-center shrink-0 px-3 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-medium flex items-center gap-1.5 text-xs transition-colors"
                   >
-                    <RefreshCw class="w-3.5 h-3.5 {isRetryingBatch ? 'animate-spin' : ''}" />
+                    <RefreshCw class="w-3 h-3 {isRetryingBatch ? 'animate-spin' : ''}" />
                     <span>Retry</span>
                   </button>
                 </div>
@@ -1026,43 +1022,45 @@
 
   <!-- ================= STATE 4: TRANSLATION COMPLETE ================= -->
   {#if appState === 'completed'}
-    <div class="max-w-2xl mx-auto space-y-6 text-center animate-in fade-in duration-300">
-      <div class="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-md shadow-emerald-500/10">
+    <div class="max-w-2xl mx-auto w-full space-y-6 text-center animate-in fade-in duration-200">
+      <div class="w-16 h-16 rounded-3xl bg-zinc-950 text-white flex items-center justify-center mx-auto shadow-md">
         <CheckCircle2 class="w-9 h-9" />
       </div>
 
       <div class="space-y-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Success</span>
-        <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white">Translation Complete!</h2>
-        <p class="text-base text-slate-600 dark:text-slate-400">{bookTitle}</p>
-        <p class="text-xs text-slate-400">
-          English → Indonesian • {totalChapters} / {totalChapters} chapters translated
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">Selesai 100%</span>
+        <h2 class="text-3xl font-extrabold text-zinc-950">Terjemahan Lengkap!</h2>
+        <p class="text-base text-zinc-600 font-medium">{bookTitle}</p>
+        <p class="text-xs font-mono text-zinc-400">
+          Semua {totalChapters} dari {totalChapters} bab telah siap dibaca dan diunduh.
         </p>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <button
-          onclick={downloadEpub}
-          class="w-full py-4 px-6 rounded-2xl font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 text-lg transition-all transform hover:scale-[1.01]"
-        >
-          <Download class="w-5 h-5" />
-          <span>Download Indonesian EPUB</span>
-        </button>
-
+      <!-- Action Card -->
+      <div class="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-3.5">
+        <!-- Primary Button: Open Reader -->
         <button
           onclick={() => openReader(0)}
-          class="w-full py-3 px-6 rounded-2xl font-semibold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center gap-2 text-base transition-colors"
+          class="w-full py-4 px-6 rounded-2xl font-bold text-white bg-zinc-950 hover:bg-zinc-800 shadow-md flex items-center justify-center gap-2.5 text-base transition-all transform hover:scale-[1.005]"
         >
-          <BookOpen class="w-5 h-5 text-orange-500" />
-          <span>Read Online (Reader Mode)</span>
+          <BookOpen class="w-5 h-5" />
+          <span>Baca Buku Sekarang (Online Reader)</span>
+        </button>
+
+        <!-- Secondary Button: Download EPUB -->
+        <button
+          onclick={downloadEpub}
+          class="w-full py-3.5 px-6 rounded-2xl font-semibold text-zinc-900 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 flex items-center justify-center gap-2 text-sm transition-colors"
+        >
+          <Download class="w-4 h-4" />
+          <span>Download File EPUB (.epub)</span>
         </button>
 
         <button
           onclick={resetToUpload}
-          class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 underline pt-2"
+          class="text-xs text-zinc-400 hover:text-zinc-700 underline underline-offset-4 pt-2"
         >
-          Translate another book
+          Terjemahkan buku lain
         </button>
       </div>
     </div>
@@ -1070,109 +1068,259 @@
 
 </div>
 
-<!-- ================= MODAL: IN-APP READER / PREVIEW ================= -->
+<!-- ================= DEDICATED IN-APP EPUB READER ================= -->
 {#if showReader}
-  <div class="fixed inset-0 z-50 flex flex-col bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200">
-    <!-- Reader Header -->
-    <div class="h-16 px-4 sm:px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
-      <!-- Left: Chapter Selector & Navigation -->
+  <div class="fixed inset-0 z-50 flex flex-col bg-[#fafafa] text-zinc-900 animate-in fade-in duration-150">
+    
+    <!-- Top Navigation Header -->
+    <header class="h-16 px-4 sm:px-6 bg-white border-b border-zinc-200 flex items-center justify-between shrink-0 z-20">
+      <!-- Left: Back & TOC Toggle -->
       <div class="flex items-center gap-2">
         <button
-          onclick={prevChapter}
-          disabled={readerChapterIndex === 0}
-          class="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
-          title="Previous Chapter"
+          onclick={() => showReader = false}
+          class="p-2 rounded-xl text-zinc-600 hover:text-black hover:bg-zinc-100 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+          title="Kembali ke Dashboard"
         >
-          <ChevronLeft class="w-5 h-5" />
+          <ArrowLeft class="w-4 h-4" />
+          <span class="hidden sm:inline">Kembali</span>
         </button>
 
-        <select
-          value={readerChapterIndex}
-          onchange={(e) => loadChapterContent(parseInt((e.target as HTMLSelectElement).value, 10))}
-          class="text-xs sm:text-sm font-semibold max-w-[200px] sm:max-w-xs px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white truncate"
-        >
-          {#each chaptersList as ch, i}
-            <option value={i}>{ch.title}</option>
-          {/each}
-        </select>
-
         <button
-          onclick={nextChapter}
-          disabled={readerChapterIndex >= totalChapters - 1}
-          class="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none"
-          title="Next Chapter"
+          onclick={() => showTocSidebar = !showTocSidebar}
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 text-xs font-semibold hover:bg-zinc-100 transition-colors {
+            showTocSidebar ? 'bg-zinc-950 text-white hover:bg-zinc-800' : 'bg-white text-zinc-800'
+          }"
+          title="Buka Daftar Isi Bab"
         >
-          <ChevronRight class="w-5 h-5" />
+          <List class="w-4 h-4" />
+          <span class="hidden sm:inline">Daftar Isi</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full {showTocSidebar ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-700'}">
+            {totalChapters}
+          </span>
         </button>
+
+        <!-- Chapter Title in Header -->
+        <span class="text-xs font-bold text-zinc-800 truncate max-w-[120px] sm:max-w-xs md:max-w-sm ml-2 hidden md:inline">
+          {readerChapterTitle || `Bab ${readerChapterIndex + 1}`}
+        </span>
       </div>
 
-      <!-- Middle: Status Badge -->
-      <div class="hidden md:flex items-center gap-2">
-        {#if readerIsTranslated}
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-            Translated (ID)
-          </span>
-        {:else}
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-            Original English
-          </span>
-        {/if}
-      </div>
-
-      <!-- Right: Reader Settings & Download -->
-      <div class="flex items-center gap-1 sm:gap-2">
-        <!-- View mode toggle: Translated only vs Side-by-side -->
+      <!-- Middle: View Mode Tabs (Single / Bilingual / Original) -->
+      <div class="flex items-center bg-zinc-100 p-1 rounded-2xl border border-zinc-200 text-xs font-medium">
         <button
-          onclick={() => readerViewMode = readerViewMode === 'translated' ? 'side-by-side' : 'translated'}
-          class="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="Toggle Side-by-Side View"
+          onclick={() => readerViewMode = 'translated'}
+          class="px-3 py-1 rounded-xl transition-all {
+            readerViewMode === 'translated'
+              ? 'bg-white text-zinc-950 font-bold shadow-sm'
+              : 'text-zinc-500 hover:text-zinc-900'
+          }"
+        >
+          Indonesia
+        </button>
+        <button
+          onclick={() => readerViewMode = 'side-by-side'}
+          class="px-3 py-1 rounded-xl transition-all flex items-center gap-1 {
+            readerViewMode === 'side-by-side'
+              ? 'bg-white text-zinc-950 font-bold shadow-sm'
+              : 'text-zinc-500 hover:text-zinc-900'
+          }"
+          title="Bandingkan Teks Asli dan Terjemahan secara berdampingan"
         >
           <Columns class="w-3.5 h-3.5" />
-          <span>{readerViewMode === 'translated' ? 'Compare' : 'Single'}</span>
+          <span>Bilingual</span>
         </button>
-
-        <!-- Font size - -->
         <button
-          onclick={() => readerFontSize = Math.max(14, readerFontSize - 2)}
-          class="p-1.5 px-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="Decrease Font Size"
+          onclick={() => readerViewMode = 'original'}
+          class="px-3 py-1 rounded-xl transition-all {
+            readerViewMode === 'original'
+              ? 'bg-white text-zinc-950 font-bold shadow-sm'
+              : 'text-zinc-500 hover:text-zinc-900'
+          }"
         >
-          A-
+          Original (EN)
         </button>
+      </div>
 
-        <!-- Font size + -->
-        <button
-          onclick={() => readerFontSize = Math.min(26, readerFontSize + 2)}
-          class="p-1.5 px-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="Increase Font Size"
-        >
-          A+
-        </button>
+      <!-- Right: Reader Controls -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <!-- Typography Settings Toggle -->
+        <div class="relative">
+          <button
+            onclick={() => showTypeSettings = !showTypeSettings}
+            class="p-2 rounded-xl border border-zinc-200 text-zinc-700 hover:text-black hover:bg-zinc-100 transition-colors {
+              showTypeSettings ? 'bg-zinc-100' : 'bg-white'
+            }"
+            title="Pengaturan Tipografi Teks"
+          >
+            <Type class="w-4 h-4" />
+          </button>
 
-        <!-- Reader Theme: Light, Sepia, Dark -->
-        <div class="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 p-0.5">
-          <button
-            onclick={() => readerTheme = 'light'}
-            class="w-6 h-6 rounded-lg bg-white border border-slate-200 {readerTheme === 'light' ? 'ring-2 ring-orange-500' : ''}"
-            title="Light theme"
-          ></button>
-          <button
-            onclick={() => readerTheme = 'sepia'}
-            class="w-6 h-6 rounded-lg bg-[#fbf0d9] border border-[#ebd4a8] mx-0.5 {readerTheme === 'sepia' ? 'ring-2 ring-orange-500' : ''}"
-            title="Sepia theme"
-          ></button>
-          <button
-            onclick={() => readerTheme = 'dark'}
-            class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 {readerTheme === 'dark' ? 'ring-2 ring-orange-500' : ''}"
-            title="Dark theme"
-          ></button>
+          <!-- Typography Popover -->
+          {#if showTypeSettings}
+            <div class="absolute right-0 top-12 w-72 bg-white border border-zinc-200 rounded-3xl p-4 shadow-xl space-y-4 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div class="flex items-center justify-between pb-2 border-b border-zinc-100 text-xs font-bold text-zinc-900">
+                <span>Pengaturan Teks</span>
+                <button onclick={() => showTypeSettings = false} class="text-zinc-400 hover:text-zinc-900">
+                  <X class="w-4 h-4" />
+                </button>
+              </div>
+
+              <!-- Font Family -->
+              <div class="space-y-1.5">
+                <span class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Jenis Huruf</span>
+                <div class="grid grid-cols-3 gap-1">
+                  <button
+                    onclick={() => setReaderFont('serif')}
+                    class="py-1.5 px-2 rounded-xl text-xs border font-book-serif text-center {
+                      readerFontFamily === 'serif' ? 'border-zinc-950 bg-zinc-950 text-white' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800'
+                    }"
+                  >
+                    Serif Buku
+                  </button>
+                  <button
+                    onclick={() => setReaderFont('sans')}
+                    class="py-1.5 px-2 rounded-xl text-xs border font-book-sans text-center {
+                      readerFontFamily === 'sans' ? 'border-zinc-950 bg-zinc-950 text-white' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800'
+                    }"
+                  >
+                    Sans Modern
+                  </button>
+                  <button
+                    onclick={() => setReaderFont('mono')}
+                    class="py-1.5 px-2 rounded-xl text-xs border font-book-mono text-center {
+                      readerFontFamily === 'mono' ? 'border-zinc-950 bg-zinc-950 text-white' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800'
+                    }"
+                  >
+                    Mono
+                  </button>
+                </div>
+              </div>
+
+              <!-- Font Size -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  <span>Ukuran Huruf</span>
+                  <span class="font-mono text-zinc-900">{readerFontSize}px</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    onclick={() => adjustFontSize(-2)}
+                    class="flex-1 py-1.5 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-xs font-bold"
+                  >
+                    A-
+                  </button>
+                  <button
+                    onclick={() => adjustFontSize(2)}
+                    class="flex-1 py-1.5 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-xs font-bold"
+                  >
+                    A+
+                  </button>
+                </div>
+              </div>
+
+              <!-- Line Height & Text Alignment -->
+              <div class="grid grid-cols-2 gap-3 pt-1 border-t border-zinc-100">
+                <div class="space-y-1.5">
+                  <span class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Spasi Baris</span>
+                  <div class="flex gap-1">
+                    <button
+                      onclick={() => readerLineHeight = '1.5'}
+                      class="flex-1 py-1 rounded-lg text-xs font-mono border {readerLineHeight === '1.5' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                    >
+                      1.5
+                    </button>
+                    <button
+                      onclick={() => readerLineHeight = '1.75'}
+                      class="flex-1 py-1 rounded-lg text-xs font-mono border {readerLineHeight === '1.75' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                    >
+                      1.8
+                    </button>
+                    <button
+                      onclick={() => readerLineHeight = '2.0'}
+                      class="flex-1 py-1 rounded-lg text-xs font-mono border {readerLineHeight === '2.0' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                    >
+                      2.0
+                    </button>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <span class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Perataan</span>
+                  <div class="flex gap-1">
+                    <button
+                      onclick={() => readerTextAlign = 'left'}
+                      class="flex-1 py-1 rounded-lg text-xs flex justify-center items-center border {readerTextAlign === 'left' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                      title="Rata Kiri"
+                    >
+                      <AlignLeft class="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onclick={() => readerTextAlign = 'justify'}
+                      class="flex-1 py-1 rounded-lg text-xs flex justify-center items-center border {readerTextAlign === 'justify' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                      title="Rata Kanan-Kiri (Justify)"
+                    >
+                      <AlignJustify class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Paragraph Indent Toggle -->
+              <div class="pt-2 border-t border-zinc-100 flex items-center justify-between">
+                <span class="text-xs font-medium text-zinc-700">Indent Paragraf Buku</span>
+                <input
+                  type="checkbox"
+                  bind:checked={readerIndent}
+                  class="w-4 h-4 accent-zinc-950 rounded cursor-pointer"
+                />
+              </div>
+
+              <!-- Width Selector -->
+              <div class="space-y-1.5 pt-1 border-t border-zinc-100">
+                <span class="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Lebar Baca</span>
+                <div class="grid grid-cols-3 gap-1">
+                  <button
+                    onclick={() => readerMaxWidth = 'compact'}
+                    class="py-1 rounded-lg text-[11px] font-mono border {readerMaxWidth === 'compact' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                  >
+                    Fokus
+                  </button>
+                  <button
+                    onclick={() => readerMaxWidth = 'normal'}
+                    class="py-1 rounded-lg text-[11px] font-mono border {readerMaxWidth === 'normal' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                  >
+                    Standar
+                  </button>
+                  <button
+                    onclick={() => readerMaxWidth = 'wide'}
+                    class="py-1 rounded-lg text-[11px] font-mono border {readerMaxWidth === 'wide' ? 'bg-zinc-950 text-white' : 'border-zinc-200'}"
+                  >
+                    Lebar
+                  </button>
+                </div>
+              </div>
+            </div>
+          {/if}
         </div>
+
+        <!-- Fullscreen Toggle -->
+        <button
+          onclick={toggleFullscreen}
+          class="p-2 rounded-xl border border-zinc-200 bg-white text-zinc-700 hover:text-black hover:bg-zinc-100 transition-colors hidden sm:block"
+          title="Layar Penuh"
+        >
+          {#if readerIsFullscreen}
+            <Minimize2 class="w-4 h-4" />
+          {:else}
+            <Maximize2 class="w-4 h-4" />
+          {/if}
+        </button>
 
         <!-- Download EPUB -->
         <button
           onclick={downloadEpub}
-          class="p-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
-          title="Download Indonesian EPUB"
+          class="p-2 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white shadow-sm transition-colors"
+          title="Unduh EPUB Terjemahan"
         >
           <Download class="w-4 h-4" />
         </button>
@@ -1180,68 +1328,173 @@
         <!-- Close Reader -->
         <button
           onclick={() => showReader = false}
-          class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="Close Reader"
+          class="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+          title="Tutup Pembaca"
         >
           <X class="w-5 h-5" />
         </button>
       </div>
-    </div>
+    </header>
 
-    <!-- Reader Paper Content Area -->
-    <div class="flex-1 overflow-y-auto p-4 sm:p-8 {
-      readerTheme === 'sepia'
-        ? 'reader-theme-sepia'
-        : readerTheme === 'dark'
-          ? 'bg-slate-950 text-slate-100'
-          : 'bg-slate-100 text-slate-900'
-    }">
-      {#if isLoadingChapter}
-        <div class="flex flex-col items-center justify-center h-64 space-y-3">
-          <RefreshCw class="w-8 h-8 text-orange-500 animate-spin" />
-          <p class="text-sm font-medium text-slate-500">Loading chapter content...</p>
-        </div>
-      {:else}
-        <div class="max-w-4xl mx-auto {readerViewMode === 'side-by-side' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}">
-          <!-- Indonesian (Translated) Column -->
-          <div
-            class="p-6 sm:p-12 rounded-3xl shadow-md border reader-content reader-paper {
-              readerTheme === 'sepia'
-                ? 'bg-[#f5e6c8] border-[#e5cb9b] text-[#42301c]'
-                : readerTheme === 'dark'
-                  ? 'bg-slate-900 border-slate-800 text-slate-100'
-                  : 'bg-white border-slate-200 text-slate-900'
-            }"
-            style="font-size: {readerFontSize}px; line-height: {readerLineHeight};"
-          >
-            {#if readerViewMode === 'side-by-side'}
-              <div class="text-xs font-bold uppercase tracking-wider text-orange-600 mb-4 pb-2 border-b">
-                Bahasa Indonesia
-              </div>
-            {/if}
-            {@html readerTranslatedHtml}
+    <!-- Main Reader Workspace (Sidebar + Canvas) -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+      <!-- Table of Contents (TOC) Sidebar -->
+      {#if showTocSidebar}
+        <aside class="w-80 border-r border-zinc-200 bg-white flex flex-col shrink-0 z-10 shadow-lg animate-in slide-in-from-left duration-200">
+          <div class="p-4 border-b border-zinc-200 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900">Daftar Isi Bab</h3>
+              <p class="text-[11px] text-zinc-500 font-mono">{totalChapters} Bab Terdeteksi</p>
+            </div>
+            <button
+              onclick={() => showTocSidebar = false}
+              class="p-1 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100"
+            >
+              <X class="w-4 h-4" />
+            </button>
           </div>
 
-          <!-- English (Original) Column (if Side-by-side mode) -->
-          {#if readerViewMode === 'side-by-side'}
-            <div
-              class="p-6 sm:p-12 rounded-3xl shadow-md border reader-content opacity-90 {
-                readerTheme === 'sepia'
-                  ? 'bg-[#eddcb8] border-[#e5cb9b] text-[#42301c]'
-                  : readerTheme === 'dark'
-                    ? 'bg-slate-900/60 border-slate-800 text-slate-300'
-                    : 'bg-slate-50 border-slate-200 text-slate-700'
-              }"
-              style="font-size: {readerFontSize}px; line-height: {readerLineHeight};"
-            >
-              <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 pb-2 border-b">
-                Original English
-              </div>
-              {@html readerOriginalHtml}
+          <!-- TOC Search -->
+          <div class="p-3 border-b border-zinc-100">
+            <div class="relative">
+              <Search class="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-400" />
+              <input
+                type="text"
+                bind:value={readerSearchQuery}
+                placeholder="Cari judul bab..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-zinc-200 bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
             </div>
-          {/if}
-        </div>
+          </div>
+
+          <!-- Chapters List -->
+          <div class="flex-1 overflow-y-auto p-2 space-y-1">
+            {#each chaptersList.filter(ch => !readerSearchQuery || ch.title.toLowerCase().includes(readerSearchQuery.toLowerCase())) as ch}
+              <button
+                onclick={() => {
+                  loadChapterContent(ch.index);
+                  if (window.innerWidth < 768) showTocSidebar = false;
+                }}
+                class="w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-start gap-2.5 {
+                  readerChapterIndex === ch.index
+                    ? 'bg-zinc-950 text-white font-semibold shadow-sm'
+                    : 'text-zinc-700 hover:bg-zinc-100'
+                }"
+              >
+                <span class="font-mono text-[11px] opacity-60 mt-0.5 shrink-0">
+                  #{ch.index + 1}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <div class="truncate">{ch.title}</div>
+                  <div class="text-[10px] font-mono mt-0.5 opacity-60">
+                    ±{ch.wordCount} kata
+                  </div>
+                </div>
+              </button>
+            {/each}
+          </div>
+        </aside>
       {/if}
+
+      <!-- Reading Canvas Area -->
+      <div
+        id="reader-scroll-canvas"
+        class="flex-1 overflow-y-auto bg-zinc-100/60 p-4 sm:p-8 md:p-12"
+      >
+        {#if isLoadingChapter}
+          <div class="flex flex-col items-center justify-center h-80 space-y-3">
+            <RefreshCw class="w-8 h-8 text-zinc-900 animate-spin" />
+            <p class="text-xs font-mono text-zinc-500">Memuat konten bab...</p>
+          </div>
+        {:else}
+          <!-- Paper Container -->
+          <div class="mx-auto {
+            readerViewMode === 'side-by-side'
+              ? 'max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6'
+              : readerMaxWidth === 'compact'
+                ? 'max-w-2xl'
+                : readerMaxWidth === 'wide'
+                  ? 'max-w-5xl'
+                  : 'max-w-3xl'
+          }">
+
+            <!-- COLUMN 1: Translated Indonesian (or Single Content) -->
+            {#if readerViewMode === 'translated' || readerViewMode === 'side-by-side'}
+              <article
+                class="bg-white p-6 sm:p-14 md:p-16 rounded-3xl shadow-sm border border-zinc-200 text-zinc-900 reader-content {
+                  readerFontFamily === 'serif' ? 'font-book-serif' : readerFontFamily === 'sans' ? 'font-book-sans' : 'font-book-mono'
+                } {readerIndent ? 'reader-indent' : ''} {readerTextAlign === 'justify' ? 'text-justify' : 'text-left'}"
+                style="font-size: {readerFontSize}px; line-height: {readerLineHeight};"
+              >
+                <!-- Chapter Header Badge -->
+                <div class="mb-8 pb-4 border-b border-zinc-100 flex items-center justify-between no-indent text-xs font-mono text-zinc-400">
+                  <span>Bab {readerChapterIndex + 1} dari {totalChapters}</span>
+                  <span class="px-2 py-0.5 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700">
+                    {readerIsTranslated ? 'Bahasa Indonesia' : 'Teks Asli (Belum Diterjemahkan)'}
+                  </span>
+                </div>
+
+                {@html readerTranslatedHtml}
+              </article>
+            {/if}
+
+            <!-- COLUMN 2: Original English (Side-by-side or Original Only) -->
+            {#if readerViewMode === 'original' || readerViewMode === 'side-by-side'}
+              <article
+                class="bg-white p-6 sm:p-14 md:p-16 rounded-3xl shadow-sm border border-zinc-200 text-zinc-800 reader-content {
+                  readerViewMode === 'side-by-side' ? 'opacity-95 bg-zinc-50/50' : ''
+                } {readerFontFamily === 'serif' ? 'font-book-serif' : readerFontFamily === 'sans' ? 'font-book-sans' : 'font-book-mono'} {
+                  readerIndent ? 'reader-indent' : ''
+                } {readerTextAlign === 'justify' ? 'text-justify' : 'text-left'}"
+                style="font-size: {readerFontSize}px; line-height: {readerLineHeight};"
+              >
+                <!-- Chapter Header Badge -->
+                <div class="mb-8 pb-4 border-b border-zinc-100 flex items-center justify-between no-indent text-xs font-mono text-zinc-400">
+                  <span>Chapter {readerChapterIndex + 1} of {totalChapters}</span>
+                  <span class="px-2 py-0.5 rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700">
+                    Original English
+                  </span>
+                </div>
+
+                {@html readerOriginalHtml}
+              </article>
+            {/if}
+          </div>
+
+          <!-- Bottom Chapter Pagination Controls -->
+          <div class="max-w-2xl mx-auto mt-10 pb-16 flex items-center justify-between gap-3 text-xs font-medium">
+            <button
+              onclick={prevChapter}
+              disabled={readerChapterIndex === 0}
+              class="px-4 py-2.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-sm"
+            >
+              <ChevronLeft class="w-4 h-4" />
+              <span>Bab Sebelumnya</span>
+            </button>
+
+            <!-- Chapter dropdown selector -->
+            <select
+              value={readerChapterIndex}
+              onchange={(e) => loadChapterContent(parseInt((e.target as HTMLSelectElement).value, 10))}
+              class="px-3 py-2 rounded-xl border border-zinc-200 bg-white text-zinc-900 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-zinc-950"
+            >
+              {#each chaptersList as ch, i}
+                <option value={i}>#{i + 1}: {ch.title}</option>
+              {/each}
+            </select>
+
+            <button
+              onclick={nextChapter}
+              disabled={readerChapterIndex >= totalChapters - 1}
+              class="px-4 py-2.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-sm"
+            >
+              <span>Bab Berikutnya</span>
+              <ChevronRight class="w-4 h-4" />
+            </button>
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 {/if}
