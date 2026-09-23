@@ -9,7 +9,7 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    const file = (formData.get('file') || formData.get('epub')) as File | null;
 
     if (!file) {
       return json({ error: 'No file uploaded. Please upload a valid .epub file.' }, { status: 400 });

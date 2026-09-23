@@ -1,7 +1,8 @@
 <script lang="ts">
   import './layout.css';
   import { onMount } from 'svelte';
-  import { Settings, BookOpen, KeyRound, Check, X, ShieldCheck, AlertCircle } from '@lucide/svelte';
+  import { page } from '$app/state';
+  import { Settings, BookOpen, KeyRound, Check, X, ShieldCheck, AlertCircle, Languages } from '@lucide/svelte';
 
   let { children } = $props();
 
@@ -68,20 +69,46 @@
   <header class="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/95 backdrop-blur-md">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <!-- Brand -->
-      <a href="/" class="flex items-center gap-3 group">
+      <a href="/" class="flex items-center gap-3 group shrink-0">
         <div class="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center shadow-sm group-hover:bg-zinc-800 transition-colors">
           <BookOpen class="w-5 h-5" />
         </div>
         <div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-lg tracking-tight text-zinc-950">LinguaBook</span>
-            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-300">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-300 hidden lg:inline">
               Translator & Reader
             </span>
           </div>
           <p class="text-xs text-zinc-500 hidden sm:block">Translate and read EPUB books in Indonesian</p>
         </div>
       </a>
+
+      <!-- Navigation Menu -->
+      <nav class="flex items-center gap-1 bg-zinc-100 p-1 rounded-2xl border border-zinc-200 text-xs font-semibold">
+        <a
+          href="/"
+          class="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl transition-all {
+            page.url.pathname === '/'
+              ? 'bg-zinc-950 text-white shadow-sm'
+              : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
+          }"
+        >
+          <Languages class="w-3.5 h-3.5" />
+          <span>Penerjemah</span>
+        </a>
+        <a
+          href="/reader"
+          class="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl transition-all {
+            page.url.pathname.startsWith('/reader')
+              ? 'bg-zinc-950 text-white shadow-sm'
+              : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
+          }"
+        >
+          <BookOpen class="w-3.5 h-3.5" />
+          <span>EPUB Reader</span>
+        </a>
+      </nav>
 
       <!-- Controls -->
       <div class="flex items-center gap-2 sm:gap-3">

@@ -147,7 +147,44 @@
     if (savedSize) {
       readerFontSize = parseInt(savedSize, 10) || 18;
     }
+
+    // Check for sessionId in URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const sidParam = urlParams.get('sessionId');
+    if (sidParam) {
+      loadExistingSession(sidParam);
+    }
   });
+
+  async function loadExistingSession(sid: string) {
+    try {
+      const res = await fetch(`/api/book?sessionId=${sid}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      sessionId = data.sessionId;
+      filename = data.filename;
+      fileSizeBytes = data.fileSizeBytes;
+      bookTitle = data.title;
+      bookAuthor = data.author;
+      bookLanguage = data.language;
+      bookCoverBase64 = data.coverBase64;
+      totalWords = data.totalWords;
+      totalBatches = data.totalBatches;
+      totalChapters = data.totalChapters;
+      chaptersList = data.chapters || [];
+
+      if (data.status === 'completed') {
+        appState = 'completed';
+      } else if (data.status === 'translating') {
+        appState = 'translating';
+        listenToProgress();
+      } else {
+        appState = 'overview';
+      }
+    } catch (e) {
+      console.error('Failed to load existing session:', e);
+    }
+  }
 
   function setModel(model: string) {
     selectedModel = model;
@@ -255,6 +292,11 @@
       totalBatches = data.totalBatches || 0;
       totalChapters = data.totalChapters || 0;
       chaptersList = data.chapters || [];
+
+      // Save recent session to localStorage for quick access across tools
+      localStorage.setItem('linguabook_last_session_id', data.sessionId);
+      localStorage.setItem('linguabook_last_book_title', bookTitle);
+      localStorage.setItem('linguabook_last_book_author', bookAuthor);
 
       appState = 'overview';
     } catch (err: any) {
@@ -607,8 +649,29 @@
           Penerjemah & Pembaca EPUB
         </h1>
         <p class="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
-          Terjemahkan buku digital berbahasa Inggris ke Bahasa Indonesia dengan gaya sastra alami. Format, gambar, CSS, dan struktur buku 100% utuh.
+          Terjemahkan buku digital berbahasa Inggris ke Bahasa Indonesia dengan gaya sastra alami, atau langsung baca naskah EPUB di web reader monokrom yang nyaman.
         </p>
+
+        <!-- Dual Entry Point Buttons: Terjemahkan vs Langsung Baca -->
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
+          <button
+            type="button"
+            onclick={() => document.getElementById('epub-file-input')?.click()}
+            class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
+          >
+            <Languages class="w-4 h-4" />
+            <span>Terjemahkan EPUB</span>
+          </button>
+          
+          <a
+            href="/reader"
+            class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-zinc-100 border border-zinc-300 text-zinc-900 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all"
+            title="Langsung baca file EPUB di web reader tanpa terjemahan"
+          >
+            <BookOpen class="w-4 h-4" />
+            <span>Buka EPUB Reader</span>
+          </a>
+        </div>
       </div>
 
       <!-- Monochrome Dropzone -->
@@ -851,14 +914,14 @@
             <span>Mulai Terjemahan</span>
           </button>
 
-          <button
-            onclick={() => openReader(0)}
+          <a
+            href="/reader?sessionId={sessionId}"
             class="w-full sm:w-auto py-3.5 px-5 rounded-2xl font-semibold text-zinc-800 bg-white border border-zinc-300 hover:bg-zinc-100 flex items-center justify-center gap-2 text-sm transition-all"
             title="Buka pembaca untuk membaca langsung bab asli sebelum atau tanpa terjemahan"
           >
             <BookOpen class="w-4 h-4" />
-            <span>Baca EPUB Ini Sekarang</span>
-          </button>
+            <span>Baca di EPUB Reader</span>
+          </a>
 
           <button
             onclick={resetToUpload}
@@ -906,13 +969,15 @@
             {/if}
 
             {#if completedChaptersCount > 0}
-              <button
-                onclick={() => openReader(0)}
+              <a
+                href="/reader?sessionId={sessionId}"
+                target="_blank"
                 class="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-200 hover:bg-zinc-200 flex items-center gap-1.5 transition-colors"
+                title="Buka pembaca di tab baru sementara antrean terjemahan terus berjalan"
               >
                 <BookOpen class="w-3.5 h-3.5" />
                 <span>Baca Bab Selesai ({completedChaptersCount})</span>
-              </button>
+              </a>
             {/if}
 
             <button
@@ -1039,13 +1104,13 @@
       <!-- Action Card -->
       <div class="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-3.5">
         <!-- Primary Button: Open Reader -->
-        <button
-          onclick={() => openReader(0)}
+        <a
+          href="/reader?sessionId={sessionId}"
           class="w-full py-4 px-6 rounded-2xl font-bold text-white bg-zinc-950 hover:bg-zinc-800 shadow-md flex items-center justify-center gap-2.5 text-base transition-all transform hover:scale-[1.005]"
         >
           <BookOpen class="w-5 h-5" />
           <span>Baca Buku Sekarang (Online Reader)</span>
-        </button>
+        </a>
 
         <!-- Secondary Button: Download EPUB -->
         <button
